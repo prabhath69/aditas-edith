@@ -1,0 +1,43 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+api_requests.log
+api_details.log
+usage.log
+fast_retrieval.log
+parser_debug.log
+
+# Cache
+.cache/
+
+#test
+test/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/

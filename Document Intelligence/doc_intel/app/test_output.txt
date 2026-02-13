@@ -1,0 +1,32 @@
+﻿============================================================
+Testing PDF parsing and URL extraction
+============================================================
+
+1. Parsing PDF: https://docs.google.com/document/d/1zoBpF8iSPtqk8RDck692zJ_V_htjWUjV/export?format=pdf
+
+2. PDF parsed successfully: 1 pages
+
+--- Page 1 content ---
+10th class Social TextBook: 
+https://scert.telangana.gov.in/pdf/publication/ebooks2019/10th%20social%20em.pdf 
+ 
+Onima link: https://www.onima.in/ 
+Human Life: 
+https://www.slideegg.com/human-life-cycle-presentation-template?srsltid=AfmBOopa_uihL_pOCYG
+OZZ6O2TCY3cundnKxvnmgA_GODY6EQmYoXvVr
+
+[EXTRACTED LINKS FROM THIS PAGE]:
+  1. https://scert.telangana.gov.in/pdf/publication/ebooks2019/10th%20social%20em.pdf
+  2. https://www.onima.in/
+  3. https://www.slideegg.com/human-life-cycle-presentation-template?srsltid=AfmBOopa_uihL_pOCYGOZZ6O2TCY3cundnKxvnmgA_GODY6EQmYoXvVr
+  4. https://www.slideegg.com/human-life-cycle-presentation-template?srsltid=AfmBOopa_uihL_pOCYGOZZ6O2TCY3cundnKxvnmgA_GODY6EQmYoXvVr
+
+--- End of page ---
+
+3. Extracting URLs from content...
+
+4. Found 4 URLs:
+   - https://scert.telangana.gov.in/pdf/publication/ebooks2019/10th%20social%20em.pdf
+   - https://www.onima.in/
+   - https://www.slideegg.com/human-life-cycle-presentation-template?srsltid=AfmBOopa_uihL_pOCYG
+   - https://www.slideegg.com/human-life-cycle-presentation-template?srsltid=AfmBOopa_uihL_pOCYGOZZ6O2TCY3cundnKxvnmgA_GODY6EQmYoXvVr
