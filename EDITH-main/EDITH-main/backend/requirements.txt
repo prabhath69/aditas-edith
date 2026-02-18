@@ -18,3 +18,4 @@ python-pptx
 openpyxl
 apscheduler
 tabulate
+youtube-transcript-api

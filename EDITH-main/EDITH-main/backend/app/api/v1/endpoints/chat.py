@@ -70,7 +70,7 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
     
     actions_taken = []
     final_response = ""
-    max_iterations = 12
+    max_iterations = 25
     tool_defs = mcp_service.get_tool_definitions()
     print(f"DEBUG TOOLS: {json.dumps(tool_defs, indent=2)}")
 
@@ -113,7 +113,6 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
                 for tc in tool_calls:
                     fn_name = tc["function"]["name"]
                     tc_id = tc["id"]
-                    
                     try:
                         fn_args = json.loads(tc["function"]["arguments"])
                     except:
@@ -121,20 +120,23 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
 
                     actions_taken.append(f"Action: {fn_name}")
                     
-                    # Log step
                     steps = list(new_log.details.get("steps", []))
                     steps.append({"iteration": i + 1, "action": fn_name, "args": fn_args})
                     new_log.details = {**new_log.details, "steps": steps}
                     db.commit()
 
-                    # Execute tool with safety
                     try:
                         tool_result = await mcp_service.execute_tool(fn_name, fn_args)
                     except Exception as tool_err:
-                        tool_result = f"Error executing tool: {str(tool_err)}"
-                        print(f"Tool Error: {tool_err}")
+                        tool_result = f"Error: {str(tool_err)}"
+                        if fn_name in ['click_element', 'fill_input', 'hover_element', 'type_text', 
+                                       'select_option', 'submit_form', 'scroll_to_element', 'wait_for_element']:
+                            try:
+                                ss = await mcp_service.execute_tool('take_page_screenshot', {})
+                                tool_result += f"\n[Debug screenshot: {ss}]"
+                            except:
+                                pass
 
-                    # Add result
                     conversation_history.append({
                         "role": "tool", 
                         "parts": [{
@@ -146,7 +148,6 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
                         }]
                     })
                     
-                    # Update log
                     steps[-1]["result"] = tool_result
                     new_log.details = {**new_log.details, "steps": steps}
                     db.commit()

@@ -6,6 +6,7 @@ from typing import List, Dict, Any
 import pandas as pd
 import pypdf
 from io import BytesIO, StringIO
+import re as stdlib_re
 import smtplib
 from email.message import EmailMessage
 import imaplib
@@ -54,7 +55,7 @@ class MCPService:
             },
             {
                 "name": "browse_url",
-                "description": "Opens a browser to visit a URL. Use this for websites needing JavaScript, price comparisons, or deep research.",
+                "description": "Visits a URL and extracts text content. For JS-heavy sites.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -65,7 +66,7 @@ class MCPService:
             },
             {
                 "name": "take_screenshot",
-                "description": "Takes a screenshot of a website and saves it to 'agent_files'.",
+                "description": "Screenshots a website, saves to agent_files.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -89,7 +90,7 @@ class MCPService:
             },
             {
                 "name": "analyze_data",
-                "description": "Reads a CSV or Excel file and provides an analysis or summary of the data using Pandas.",
+                "description": "Analyzes CSV/Excel data using Pandas. Returns stats and preview.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -112,7 +113,7 @@ class MCPService:
             },
             {
                 "name": "draft_email",
-                "description": "Drafts an email and shows a preview to the user for approval before sending.",
+                "description": "Drafts an email preview for user approval.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -141,7 +142,7 @@ class MCPService:
             },
             {
                 "name": "schedule_task",
-                "description": "Schedules a recurring task (e.g., check email every hour). Start with 'interval' mode.",
+                "description": "Schedules a recurring task at an interval.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -400,6 +401,223 @@ class MCPService:
                     "properties": {},
                     "required": []
                 }
+            },
+            # === BROWSEROS-LEVEL BROWSER TOOLS ===
+            {
+                "name": "extract_text",
+                "description": "Reads visible text from the current page. Use after navigating.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "extract_structured_data",
+                "description": "Extracts tables/lists/headings/links as JSON. Types: 'auto', 'tables', 'lists', 'headings', 'links'.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "data_type": {"type": "string", "description": "Type of data to extract: 'auto', 'tables', 'lists', 'headings', or 'links'. Default: 'auto'."}
+                    },
+                    "required": []
+                }
+            },
+            {
+                "name": "type_text",
+                "description": "Types text char-by-char. Use for search boxes or React inputs where fill_input fails.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "text": {"type": "string", "description": "The text to type."},
+                        "selector": {"type": "string", "description": "Optional CSS selector or text of the element to type into. If omitted, types into the currently focused element."}
+                    },
+                    "required": ["text"]
+                }
+            },
+            {
+                "name": "press_key",
+                "description": "Presses a key. Keys: Enter, Tab, Escape, ArrowDown. Use modifiers for combos (Ctrl+A).",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "key": {"type": "string", "description": "Key to press: 'Enter', 'Tab', 'Escape', 'ArrowDown', 'Backspace', 'a', 'F5', etc."},
+                        "modifiers": {"type": "string", "description": "Optional modifier key: 'Control', 'Shift', 'Alt', 'Meta'. E.g. 'Control' + key='a' = Ctrl+A."}
+                    },
+                    "required": ["key"]
+                }
+            },
+            {
+                "name": "go_back",
+                "description": "Navigates back in browser history (like pressing the Back button). Use after clicking into a page to return to the previous one.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "go_forward",
+                "description": "Navigates forward in browser history (like pressing the Forward button).",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "get_page_info",
+                "description": "Gets current page URL, title, tab count, and scroll position. Use this to check where you are.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "open_new_tab",
+                "description": "Opens a URL in a new browser tab. The new tab becomes the active tab. Use switch_tab to go back.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "URL to open in the new tab."}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "switch_tab",
+                "description": "Switches to a browser tab by index (0-based). Tab 0 is the first tab opened.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "index": {"type": "integer", "description": "Tab index (0-based). Use get_page_info to see how many tabs are open."}
+                    },
+                    "required": ["index"]
+                }
+            },
+            {
+                "name": "close_tab",
+                "description": "Closes the current tab and switches to the last remaining tab. Cannot close the last tab (use close_browser instead).",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "execute_javascript",
+                "description": "Executes custom JavaScript code on the page and returns the result. Use for advanced operations like reading hidden data, modifying the DOM, or extracting specific values.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "code": {"type": "string", "description": "JavaScript code to execute. Use return statements to get values back."}
+                    },
+                    "required": ["code"]
+                }
+            },
+            {
+                "name": "drag_and_drop",
+                "description": "Drags an element and drops it on another element. Use for sortable lists, kanban boards, etc.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "source_selector": {"type": "string", "description": "CSS selector or text of the element to drag."},
+                        "target_selector": {"type": "string", "description": "CSS selector or text of the element to drop onto."}
+                    },
+                    "required": ["source_selector", "target_selector"]
+                }
+            },
+            {
+                "name": "upload_file",
+                "description": "Uploads a file to a file input element on the page. The file should be in the 'agent_files' folder.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "selector": {"type": "string", "description": "CSS selector of the file input element."},
+                        "file_path": {"type": "string", "description": "Path to the file to upload. Can be a filename in agent_files or an absolute path."}
+                    },
+                    "required": ["selector", "file_path"]
+                }
+            },
+            {
+                "name": "wait_for_navigation",
+                "description": "Waits for the page URL to change (navigation event). Use after clicking a link or submitting a form that triggers page navigation.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "timeout": {"type": "integer", "description": "Max wait time in milliseconds (default 10000)."}
+                    },
+                    "required": []
+                }
+            },
+            {
+                "name": "scroll_to_element",
+                "description": "Scrolls the page until a specific element is visible on screen. More precise than scroll_page.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "selector": {"type": "string", "description": "CSS selector or text of the element to scroll to."}
+                    },
+                    "required": ["selector"]
+                }
+            },
+            {
+                "name": "switch_to_frame",
+                "description": "Switches into an iframe to interact with its content. Some websites use iframes for forms, embedded content, etc.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "selector": {"type": "string", "description": "CSS selector of the iframe element."}
+                    },
+                    "required": ["selector"]
+                }
+            },
+            {
+                "name": "switch_to_main",
+                "description": "Switches back to the main page from an iframe. Use after done interacting with iframe content.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "handle_dialog",
+                "description": "Handles browser alerts/confirms. Call BEFORE the action that opens dialog.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "action": {"type": "string", "description": "'accept' to click OK, 'dismiss' to click Cancel. Default: 'accept'."},
+                        "prompt_text": {"type": "string", "description": "Text to enter in prompt dialogs (optional)."}
+                    },
+                    "required": []
+                }
+            },
+            # === YOUTUBE TRANSCRIPT TOOLS ===
+            {
+                "name": "youtube_transcript_search",
+                "description": "Searches a YouTube video's transcript for a specific phrase and returns the timestamp where it appears. This is TOKEN-EFFICIENT: the search happens locally in Python, not via LLM. After getting the timestamp, navigate the browser to the video URL with ?t=seconds to play from that point.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "video_url": {"type": "string", "description": "YouTube video URL (e.g. https://www.youtube.com/watch?v=VIDEO_ID)"},
+                        "search_phrase": {"type": "string", "description": "The phrase or sentence to search for in the transcript."}
+                    },
+                    "required": ["video_url", "search_phrase"]
+                }
+            },
+            {
+                "name": "get_youtube_transcript",
+                "description": "Fetches the transcript of a YouTube video. Returns timestamped text. Use max_chars to limit output and save tokens. For searching specific phrases, use youtube_transcript_search instead.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "video_url": {"type": "string", "description": "YouTube video URL."},
+                        "max_chars": {"type": "integer", "description": "Maximum characters to return (default 2000). Lower = fewer tokens."}
+                    },
+                    "required": ["video_url"]
+                }
             }
         ]
 
@@ -481,6 +699,48 @@ class MCPService:
                 return await browser_automation.scroll_page(arguments.get("direction", "down"))
             elif name == "take_page_screenshot":
                 return await browser_automation.take_page_screenshot()
+            # === BROWSEROS-LEVEL BROWSER TOOLS ===
+            elif name == "extract_text":
+                return await browser_automation.extract_text()
+            elif name == "extract_structured_data":
+                return await browser_automation.extract_structured_data(arguments.get("data_type", "auto"))
+            elif name == "type_text":
+                return await browser_automation.type_text(arguments.get("text"), arguments.get("selector"))
+            elif name == "press_key":
+                return await browser_automation.press_key(arguments.get("key"), arguments.get("modifiers"))
+            elif name == "go_back":
+                return await browser_automation.go_back()
+            elif name == "go_forward":
+                return await browser_automation.go_forward()
+            elif name == "get_page_info":
+                return await browser_automation.get_page_info()
+            elif name == "open_new_tab":
+                return await browser_automation.open_new_tab(arguments.get("url"))
+            elif name == "switch_tab":
+                return await browser_automation.switch_tab(arguments.get("index", 0))
+            elif name == "close_tab":
+                return await browser_automation.close_tab()
+            elif name == "execute_javascript":
+                return await browser_automation.execute_javascript(arguments.get("code"))
+            elif name == "drag_and_drop":
+                return await browser_automation.drag_and_drop(arguments.get("source_selector"), arguments.get("target_selector"))
+            elif name == "upload_file":
+                return await browser_automation.upload_file(arguments.get("selector"), arguments.get("file_path"))
+            elif name == "wait_for_navigation":
+                return await browser_automation.wait_for_navigation(arguments.get("timeout", 10000))
+            elif name == "scroll_to_element":
+                return await browser_automation.scroll_to_element(arguments.get("selector"))
+            elif name == "switch_to_frame":
+                return await browser_automation.switch_to_frame(arguments.get("selector"))
+            elif name == "switch_to_main":
+                return await browser_automation.switch_to_main()
+            elif name == "handle_dialog":
+                return await browser_automation.handle_dialog(arguments.get("action", "accept"), arguments.get("prompt_text"))
+            # === YOUTUBE TRANSCRIPT TOOLS ===
+            elif name == "youtube_transcript_search":
+                return self._youtube_transcript_search(arguments.get("video_url"), arguments.get("search_phrase"))
+            elif name == "get_youtube_transcript":
+                return self._get_youtube_transcript(arguments.get("video_url"), arguments.get("max_chars", 2000))
             else:
                 return f"Error: Tool '{name}' not found."
         except Exception as e:
@@ -757,7 +1017,7 @@ Would you like me to send this email? You can:
                 
                 # Basic cleaning & strict truncation
                 cleaned = re.sub(r'\s+', ' ', text).strip()
-                return f"Browsed '{title}' ({url}):\n\n{cleaned[:3000]}..."
+                return f"Browsed: {title} | {url}\n{cleaned[:2000]}"
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
@@ -865,7 +1125,10 @@ Would you like me to send this email? You can:
                 text.append(page.extract_text())
             
             full_text = "\n".join(text)
-            return f"PDF Content ({filename}):\n\n{full_text[:5000]}... (truncated if too long)"
+            # Cap at 3000 chars (~750 tokens)
+            if len(full_text) > 3000:
+                return f"PDF: {filename}\n{full_text[:3000]}\n... [truncated]"
+            return f"PDF: {filename}\n{full_text}"
         except Exception as e:
             return f"PDF Read Error: {str(e)}"
 
@@ -1259,4 +1522,142 @@ After authorization, try posting again."""
         except Exception as e:
             return f"LinkedIn Post Error: {str(e)}"
 
+    # === YOUTUBE TRANSCRIPT TOOLS ===
+
+    def _extract_video_id(self, url: str) -> str:
+        """Extracts YouTube video ID from various URL formats."""
+        patterns = [
+            r'(?:v=|/v/|youtu\.be/)([a-zA-Z0-9_-]{11})',
+            r'(?:embed/)([a-zA-Z0-9_-]{11})',
+            r'^([a-zA-Z0-9_-]{11})$',  # Just the ID
+        ]
+        for pattern in patterns:
+            match = stdlib_re.search(pattern, url)
+            if match:
+                return match.group(1)
+        return None
+
+    def _fetch_transcript(self, video_id: str):
+        """Fetches transcript using v1.2.4 API. Returns list of FetchedTranscriptSnippet."""
+        from youtube_transcript_api import YouTubeTranscriptApi
+        ytt = YouTubeTranscriptApi()
+        tlist = ytt.list(video_id)
+        # Try manual captions first, then auto-generated
+        try:
+            t = tlist.find_transcript(['en'])
+        except:
+            t = tlist.find_generated_transcript(['en'])
+        return t.fetch()
+
+    def _youtube_transcript_search(self, video_url: str, search_phrase: str) -> str:
+        """Searches a YouTube video transcript for a phrase. Returns timestamp + context."""
+        try:
+            video_id = self._extract_video_id(video_url)
+            if not video_id:
+                return f"Could not extract video ID from: {video_url}"
+
+            try:
+                snippets = self._fetch_transcript(video_id)
+            except Exception as e:
+                return f"No transcript available for this video. Error: {str(e)}"
+
+            # Build full text with timestamps for searching
+            search_lower = search_phrase.lower()
+            
+            # Search in sliding window of combined entries
+            matches = []
+            for i in range(len(snippets)):
+                window_texts = []
+                for j in range(i, min(i + 5, len(snippets))):
+                    window_texts.append(snippets[j].text)
+                
+                combined = ' '.join(window_texts).lower()
+                combined = stdlib_re.sub(r'\s+', ' ', combined)
+                
+                if search_lower in combined:
+                    seconds = int(snippets[i].start)
+                    minutes = seconds // 60
+                    secs = seconds % 60
+                    context = ' '.join(window_texts)
+                    
+                    matches.append({
+                        'timestamp': f"{minutes}:{secs:02d}",
+                        'seconds': seconds,
+                        'context': context[:200]
+                    })
+                    break
+
+            if not matches:
+                # Fallback: fuzzy search using word overlap
+                search_words = set(search_lower.split())
+                best_score = 0
+                best_match = None
+                
+                for i in range(len(snippets)):
+                    window_texts = []
+                    for j in range(i, min(i + 5, len(snippets))):
+                        window_texts.append(snippets[j].text)
+                    combined = ' '.join(window_texts).lower()
+                    combined_words = set(combined.split())
+                    
+                    overlap = len(search_words & combined_words) / max(len(search_words), 1)
+                    if overlap > best_score and overlap > 0.5:
+                        best_score = overlap
+                        seconds = int(snippets[i].start)
+                        best_match = {
+                            'timestamp': f"{seconds // 60}:{seconds % 60:02d}",
+                            'seconds': seconds,
+                            'context': ' '.join(window_texts)[:200],
+                            'score': f"{overlap:.0%}"
+                        }
+                
+                if best_match:
+                    return (
+                        f"Closest match ({best_match['score']} confidence) at {best_match['timestamp']} "
+                        f"(t={best_match['seconds']}s)\n"
+                        f"Context: \"{best_match['context']}\"\n"
+                        f"Play from here: {video_url}&t={best_match['seconds']}"
+                    )
+                return f"Phrase not found in transcript. Try different wording or a shorter phrase."
+
+            m = matches[0]
+            return (
+                f"Found at {m['timestamp']} (t={m['seconds']}s)\n"
+                f"Context: \"{m['context']}\"\n"
+                f"Play from here: {video_url}&t={m['seconds']}"
+            )
+
+        except Exception as e:
+            return f"YouTube transcript error: {str(e)}"
+
+    def _get_youtube_transcript(self, video_url: str, max_chars: int = 2000) -> str:
+        """Fetches YouTube transcript with a character limit to save tokens."""
+        try:
+            video_id = self._extract_video_id(video_url)
+            if not video_id:
+                return f"Could not extract video ID from: {video_url}"
+
+            try:
+                snippets = self._fetch_transcript(video_id)
+            except Exception as e:
+                return f"No transcript available: {str(e)}"
+
+            # Format with timestamps, respecting max_chars
+            output = ""
+            for s in snippets:
+                seconds = int(s.start)
+                timestamp = f"{seconds // 60}:{seconds % 60:02d}"
+                line = f"[{timestamp}] {s.text}\n"
+                
+                if len(output) + len(line) > max_chars:
+                    output += f"\n... (truncated at {max_chars} chars. Use youtube_transcript_search for specific phrases)"
+                    break
+                output += line
+
+            return output
+
+        except Exception as e:
+            return f"YouTube transcript error: {str(e)}"
+
 mcp_service = MCPService()
+

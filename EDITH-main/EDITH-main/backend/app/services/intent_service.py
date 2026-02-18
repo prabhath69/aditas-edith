@@ -8,7 +8,7 @@ class IntentDetector:
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY") or settings.GROQ_API_KEY
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
-        self.model_id = "llama3-8b-8192"  # Free Groq model
+        self.model_id = "llama-3.3-70b-versatile"  # Updated from deprecated llama3-8b-8192
         
         self.system_prompt = (
             "You are the Intent Classifier for EDITH, an advanced AI Agent. "
