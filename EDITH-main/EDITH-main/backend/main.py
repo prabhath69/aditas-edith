@@ -3,12 +3,14 @@ import sys
 import os
 import asyncio
 
-# Fix for Windows event loop compatibility with Playwright
-# ProactorEventLoop is required for subprocess support on Windows
-# This must be set before any async operations
+# ─── WINDOWS EVENT LOOP FIX ─────────────────────────────────────────────────
+# nodriver uses subprocess to launch Chrome. On Windows, only ProactorEventLoop
+# supports subprocesses. This MUST be set before any async imports.
+# NOTE: uvicorn with reload=True spawns a child process that resets the loop,
+#       so we also enforce it via a loop_factory below.
 if sys.platform == 'win32':
-    # Use ProactorEventLoop which supports subprocesses (required by Playwright)
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Add the current directory to sys.path to allow imports from 'app'
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -53,4 +55,20 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+    if sys.platform == 'win32':
+        # Re-apply ProactorEventLoop policy — uvicorn reload mode may reset it
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+        # Create and set a fresh ProactorEventLoop explicitly
+        loop = asyncio.ProactorEventLoop()
+        asyncio.set_event_loop(loop)
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=False,        # reload=True spawns subprocess that loses ProactorLoop
+        loop="asyncio",      # Tell uvicorn to use asyncio (respects our policy)
+        log_level="info",
+    )
+

@@ -6,9 +6,25 @@ from app.core.config import settings
 
 class IntentDetector:
     def __init__(self):
-        self.api_key = os.getenv("GROQ_API_KEY") or settings.GROQ_API_KEY
-        self.base_url = "https://api.groq.com/openai/v1/chat/completions"
-        self.model_id = "llama-3.3-70b-versatile"  # Updated from deprecated llama3-8b-8192
+        self.openai_key = os.getenv("OPENAI_API_KEY")
+        self.groq_key = os.getenv("GROQ_API_KEY") or getattr(settings, 'GROQ_API_KEY', None)
+        
+        # Provider chain: OpenAI first, then Groq
+        self.providers = []
+        if self.openai_key:
+            self.providers.append({
+                "name": "OpenAI",
+                "url": "https://api.openai.com/v1/chat/completions",
+                "model": "gpt-5-nano",
+                "key": self.openai_key
+            })
+        if self.groq_key:
+            self.providers.append({
+                "name": "Groq",
+                "url": "https://api.groq.com/openai/v1/chat/completions",
+                "model": "llama-3.3-70b-versatile",
+                "key": self.groq_key
+            })
         
         self.system_prompt = (
             "You are the Intent Classifier for EDITH, an advanced AI Agent. "
@@ -18,12 +34,12 @@ class IntentDetector:
             "   - 'google_search' (real-time info)\n"
             "   - 'browse_url' (reading websites)\n"
             "   - 'write_file' (saving data)\n"
-            "   - 'open_browser', 'fill_input', 'click_element', 'hover_element', 'navigate_to', 'scroll_page', 'submit_form' (BROWSER AUTOMATION - filling forms, clicking buttons, hovering menus, navigating pages, web interactions)\n"
+            "   - 'open_browser', 'take_snapshot', 'click', 'hover', 'fill', 'navigate_page', 'scroll_page', 'submit_form' (BROWSER AUTOMATION - filling forms, clicking buttons, hovering menus, navigating pages, web interactions)\n"
             "   - Any request involving URLs, forms, websites, or web automation\n"
             "3. HYBRID: A mix of both (e.g., 'Hello, can you find the price of Bitcoin and save it?').\n"
             "\n"
             "IMPORTANT: If the user asks to fill a form, go to a URL, click something, submit something, "
-            "apply to a job, or interact with a website in any way - that is ALWAYS a TASK!\n"
+            "apply to a job, order something, shop online, or interact with a website in any way - that is ALWAYS a TASK!\n"
             "\n"
             "You MUST output ONLY a valid JSON object: "
             "{\"intent\": \"CHAT\" | \"TASK\" | \"HYBRID\", \"reason\": \"...\"}"
@@ -31,41 +47,48 @@ class IntentDetector:
 
     async def detect(self, user_input: str) -> Dict:
         """
-        Classifies the user intent using Groq.
+        Classifies the user intent. Tries OpenAI first, then Groq as fallback.
         """
-        try:
-            async with httpx.AsyncClient() as client:
-                payload = {
-                    "model": self.model_id,
-                    "messages": [
-                        {"role": "system", "content": self.system_prompt},
-                        {"role": "user", "content": f"User Input: \"{user_input}\""}
-                    ],
-                    "temperature": 0.0,
-                    # Note: Not all models support json_mode, but we provide the prompt instruction.
-                }
-                headers = {
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
-                }
-                
-                response = await client.post(self.base_url, json=payload, headers=headers)
-                if response.status_code != 200:
-                    print(f"DEBUG Intent Error: {response.text}")
-                    raise Exception(f"Groq API Error: {response.text}")
-                
-                data = response.json()
-                content = data["choices"][0]["message"]["content"]
-                # Clean markdown if model is chatty
-                if "```json" in content:
-                    content = content.split("```json")[1].split("```")[0].strip()
-                elif "```" in content:
-                    content = content.split("```")[1].split("```")[0].strip()
-                
-                return json.loads(content)
-        except Exception as e:
-            print(f"Intent Detection Error: {e}")
-            # Fallback to CHAT to be safe
-            return {"intent": "CHAT", "reason": "System fallback due to detection error."}
+        for provider in self.providers:
+            try:
+                async with httpx.AsyncClient() as client:
+                    payload = {
+                        "model": provider["model"],
+                        "messages": [
+                            {"role": "system", "content": self.system_prompt},
+                            {"role": "user", "content": f"User Input: \"{user_input}\""}
+                        ],
+                        "temperature": 0.0,
+                    }
+                    headers = {
+                        "Authorization": f"Bearer {provider['key']}",
+                        "Content-Type": "application/json"
+                    }
+                    
+                    print(f"[Intent] Trying {provider['name']}...")
+                    response = await client.post(provider["url"], json=payload, headers=headers, timeout=30.0)
+                    
+                    if response.status_code != 200:
+                        print(f"[Intent] ✗ {provider['name']} failed: {response.status_code}")
+                        continue  # Try next provider
+                    
+                    data = response.json()
+                    content = data["choices"][0]["message"]["content"]
+                    # Clean markdown if model is chatty
+                    if "```json" in content:
+                        content = content.split("```json")[1].split("```")[0].strip()
+                    elif "```" in content:
+                        content = content.split("```")[1].split("```")[0].strip()
+                    
+                    result = json.loads(content)
+                    print(f"[Intent] ✓ {provider['name']}: {result.get('intent', 'UNKNOWN')}")
+                    return result
+            except Exception as e:
+                print(f"[Intent] ✗ {provider['name']} error: {e}")
+                continue
+        
+        # All providers failed — fallback to TASK (safer for browser automation)
+        print("[Intent] All providers failed, defaulting to TASK")
+        return {"intent": "TASK", "reason": "All providers failed — defaulting to TASK for safety."}
 
 intent_detector = IntentDetector()

@@ -13,7 +13,7 @@ import imaplib
 import email
 import asyncio
 import mimetypes
-from playwright.async_api import async_playwright
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -273,10 +273,11 @@ class MCPService:
                     "required": ["text"]
                 }
             },
-            # === BROWSER AUTOMATION TOOLS ===
+            # === BROWSER AUTOMATION TOOLS (BrowserOS Architecture) ===
+            # Pattern: open_browser → take_snapshot → interact by uid → take_snapshot
             {
                 "name": "open_browser",
-                "description": "Opens a browser and navigates to a URL. Use this to start interacting with websites, forms, or web applications. Browser stays open for further interactions.",
+                "description": "Opens a browser and navigates to a URL. Automatically takes an initial snapshot. Browser stays open for further interactions.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -286,8 +287,8 @@ class MCPService:
                 }
             },
             {
-                "name": "get_page_elements",
-                "description": "Gets all interactive elements on the current page including form fields (text inputs, dropdowns, checkboxes, radio buttons) and buttons. Returns element selectors for use with fill_input or click_element.",
+                "name": "take_snapshot",
+                "description": "Takes a snapshot of the current page. Returns all interactive elements with unique IDs (uid). ALWAYS call this before interacting with elements. Use the uid values with click, fill, hover, etc.",
                 "parameters": {
                     "type": "object",
                     "properties": {},
@@ -295,73 +296,100 @@ class MCPService:
                 }
             },
             {
-                "name": "fill_input",
-                "description": "Fills a text input field on the webpage. Use the selector from get_page_elements.",
+                "name": "click",
+                "description": "Clicks an element by its uid from the latest snapshot. Automatically takes a new snapshot after clicking.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "selector": {"type": "string", "description": "CSS selector or element identifier from get_page_elements."},
-                        "value": {"type": "string", "description": "The text value to enter."}
+                        "uid": {"type": "string", "description": "The uid of the element from take_snapshot (e.g. '3_5')."},
+                        "dbl_click": {"type": "boolean", "description": "Set to true for double-click. Default: false."}
                     },
-                    "required": ["selector", "value"]
+                    "required": ["uid"]
                 }
             },
             {
-                "name": "click_element",
-                "description": "Clicks a button, link, checkbox, radio button, tab, or any clickable element. You can pass a CSS selector OR plain text like 'Research' or 'Overview'.",
+                "name": "hover",
+                "description": "Hovers over an element by uid to trigger dropdowns/tooltips. Automatically takes a new snapshot showing revealed elements.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "selector": {"type": "string", "description": "CSS selector or plain text of the element to click, e.g. 'Overview' or '#submit-btn'."}
+                        "uid": {"type": "string", "description": "The uid of the element from take_snapshot."}
                     },
-                    "required": ["selector"]
+                    "required": ["uid"]
+                }
+            },
+            {
+                "name": "fill",
+                "description": "Fills a text input, textarea, or select element by uid. For select elements, pass the option label as value.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "uid": {"type": "string", "description": "The uid of the input element from take_snapshot."},
+                        "value": {"type": "string", "description": "The value to fill in."}
+                    },
+                    "required": ["uid", "value"]
+                }
+            },
+            {
+                "name": "fill_form",
+                "description": "Fills multiple form fields at once. More efficient than calling fill repeatedly.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "elements": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "uid": {"type": "string"},
+                                    "value": {"type": "string"}
+                                }
+                            },
+                            "description": "List of {uid, value} pairs to fill."
+                        }
+                    },
+                    "required": ["elements"]
                 }
             },
             {
                 "name": "select_option",
-                "description": "Selects an option from a dropdown or radio group by its visible text.",
+                "description": "Selects an option from a dropdown by uid and option text.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "selector": {"type": "string", "description": "CSS selector for the dropdown/select element."},
+                        "uid": {"type": "string", "description": "The uid of the select/dropdown element."},
                         "option_text": {"type": "string", "description": "The visible text of the option to select."}
                     },
-                    "required": ["selector", "option_text"]
+                    "required": ["uid", "option_text"]
                 }
             },
             {
-                "name": "submit_form",
-                "description": "Submits the current form by clicking the submit button. Returns confirmation of submission.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                    "required": []
-                }
-            },
-            {
-                "name": "close_browser",
-                "description": "Closes the browser session. Use this when done with web automation tasks.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                    "required": []
-                }
-            },
-            # === NEW BROWSER TOOLS (hover, navigation, etc.) ===
-            {
-                "name": "hover_element",
-                "description": "Hovers over an element to trigger dropdowns, popups, or tooltips. You can pass a CSS selector OR plain text like 'Research' or 'Products'. After hovering, it returns the dropdown items with clickable selectors.",
+                "name": "drag",
+                "description": "Drags one element onto another by their uids.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "selector": {"type": "string", "description": "CSS selector or plain text of the element to hover over, e.g. 'Research' or '#menu-item-1'."}
+                        "from_uid": {"type": "string", "description": "The uid of the element to drag."},
+                        "to_uid": {"type": "string", "description": "The uid of the drop target."}
                     },
-                    "required": ["selector"]
+                    "required": ["from_uid", "to_uid"]
                 }
             },
             {
-                "name": "navigate_to",
-                "description": "Navigates to a new URL within the existing browser session. Use this for multi-page workflows.",
+                "name": "upload_file",
+                "description": "Uploads a file to a file input element by uid.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "uid": {"type": "string", "description": "The uid of the file input element."},
+                        "file_path": {"type": "string", "description": "Path to the file. Can be filename in agent_files or absolute path."}
+                    },
+                    "required": ["uid", "file_path"]
+                }
+            },
+            {
+                "name": "navigate_page",
+                "description": "Navigates the current page to a URL. Automatically takes a snapshot.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -371,41 +399,82 @@ class MCPService:
                 }
             },
             {
-                "name": "wait_for_element",
-                "description": "Waits for a specific element to appear on the page. Use after hover or click actions that trigger dynamic content.",
+                "name": "navigate_history",
+                "description": "Navigates back or forward in browser history.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "selector": {"type": "string", "description": "CSS selector of the element to wait for."},
-                        "timeout": {"type": "integer", "description": "Max wait time in milliseconds (default 5000)."}
-                    },
-                    "required": ["selector"]
-                }
-            },
-            {
-                "name": "scroll_page",
-                "description": "Scrolls the page to reveal more content. Useful for lazy-loaded pages or finding elements below the fold.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "direction": {"type": "string", "description": "Scroll direction: 'up', 'down', 'top', or 'bottom'."}
+                        "direction": {"type": "string", "description": "'back' or 'forward'."}
                     },
                     "required": ["direction"]
                 }
             },
             {
-                "name": "take_page_screenshot",
-                "description": "Takes a screenshot of the current browser page state. Useful for verification and debugging.",
+                "name": "new_page",
+                "description": "Opens a URL in a new tab. The new tab becomes active.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "URL to open in the new tab."}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "list_pages",
+                "description": "Lists all open pages/tabs with their indices.",
                 "parameters": {
                     "type": "object",
                     "properties": {},
                     "required": []
                 }
             },
-            # === BROWSEROS-LEVEL BROWSER TOOLS ===
+            {
+                "name": "select_page",
+                "description": "Switches to a page/tab by index. Use list_pages to see available pages.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "page_idx": {"type": "integer", "description": "Page index (0-based)."}
+                    },
+                    "required": ["page_idx"]
+                }
+            },
+            {
+                "name": "close_page",
+                "description": "Closes a page/tab by index. Cannot close the last page.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "page_idx": {"type": "integer", "description": "Page index to close."}
+                    },
+                    "required": ["page_idx"]
+                }
+            },
+            {
+                "name": "close_browser",
+                "description": "Closes the browser session and cleans up.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "take_screenshot",
+                "description": "Takes a screenshot of the page or a specific element by uid.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "uid": {"type": "string", "description": "Optional uid of element to screenshot. If omitted, screenshots the full page."},
+                        "full_page": {"type": "boolean", "description": "If true, captures the entire scrollable page. Default: false."}
+                    },
+                    "required": []
+                }
+            },
             {
                 "name": "extract_text",
-                "description": "Reads visible text from the current page. Use after navigating.",
+                "description": "Reads visible text from the current page.",
                 "parameters": {
                     "type": "object",
                     "properties": {},
@@ -418,47 +487,117 @@ class MCPService:
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "data_type": {"type": "string", "description": "Type of data to extract: 'auto', 'tables', 'lists', 'headings', or 'links'. Default: 'auto'."}
+                        "data_type": {"type": "string", "description": "Type: 'auto', 'tables', 'lists', 'headings', or 'links'. Default: 'auto'."}
                     },
                     "required": []
                 }
             },
             {
                 "name": "type_text",
-                "description": "Types text char-by-char. Use for search boxes or React inputs where fill_input fails.",
+                "description": "Types text char-by-char with human-like delays. Use for search boxes or React inputs.",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "text": {"type": "string", "description": "The text to type."},
-                        "selector": {"type": "string", "description": "Optional CSS selector or text of the element to type into. If omitted, types into the currently focused element."}
+                        "uid": {"type": "string", "description": "Optional uid of element to type into. If omitted, types into focused element."}
                     },
                     "required": ["text"]
                 }
             },
             {
                 "name": "press_key",
-                "description": "Presses a key. Keys: Enter, Tab, Escape, ArrowDown. Use modifiers for combos (Ctrl+A).",
+                "description": "Presses a keyboard key or combination (e.g. Enter, Tab, Ctrl+A).",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "key": {"type": "string", "description": "Key to press: 'Enter', 'Tab', 'Escape', 'ArrowDown', 'Backspace', 'a', 'F5', etc."},
-                        "modifiers": {"type": "string", "description": "Optional modifier key: 'Control', 'Shift', 'Alt', 'Meta'. E.g. 'Control' + key='a' = Ctrl+A."}
+                        "key": {"type": "string", "description": "Key: 'Enter', 'Tab', 'Escape', 'ArrowDown', etc."},
+                        "modifiers": {"type": "string", "description": "Optional modifier: 'Control', 'Shift', 'Alt'."}
                     },
                     "required": ["key"]
                 }
             },
             {
-                "name": "go_back",
-                "description": "Navigates back in browser history (like pressing the Back button). Use after clicking into a page to return to the previous one.",
+                "name": "scroll_page",
+                "description": "Scrolls the page. Automatically takes a new snapshot.",
                 "parameters": {
                     "type": "object",
-                    "properties": {},
+                    "properties": {
+                        "direction": {"type": "string", "description": "'up', 'down', 'top', or 'bottom'."}
+                    },
+                    "required": ["direction"]
+                }
+            },
+            {
+                "name": "scroll_to_element",
+                "description": "Scrolls until a specific element (by uid) is visible.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "uid": {"type": "string", "description": "The uid of the element to scroll to."}
+                    },
+                    "required": ["uid"]
+                }
+            },
+            {
+                "name": "wait_for",
+                "description": "Waits for specified text to appear on the page.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "text": {"type": "string", "description": "Text to wait for."},
+                        "timeout": {"type": "integer", "description": "Max wait in ms (default 5000)."}
+                    },
+                    "required": ["text"]
+                }
+            },
+            {
+                "name": "wait_for_navigation",
+                "description": "Waits for the page URL to change after a click or form submit.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "timeout": {"type": "integer", "description": "Max wait in ms (default 10000)."}
+                    },
                     "required": []
                 }
             },
             {
-                "name": "go_forward",
-                "description": "Navigates forward in browser history (like pressing the Forward button).",
+                "name": "execute_javascript",
+                "description": "Executes JavaScript on the page and returns the result.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "code": {"type": "string", "description": "JavaScript code to execute."}
+                    },
+                    "required": ["code"]
+                }
+            },
+            {
+                "name": "handle_dialog",
+                "description": "Handles browser alert/confirm/prompt dialogs.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "action": {"type": "string", "description": "'accept' or 'dismiss'. Default: 'accept'."},
+                        "prompt_text": {"type": "string", "description": "Text for prompt dialogs (optional)."}
+                    },
+                    "required": []
+                }
+            },
+            {
+                "name": "switch_to_frame",
+                "description": "Switches into an iframe by uid to interact with its content.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "uid": {"type": "string", "description": "The uid of the iframe element."}
+                    },
+                    "required": ["uid"]
+                }
+            },
+            {
+                "name": "switch_to_main",
+                "description": "Switches back to the main page from an iframe.",
                 "parameters": {
                     "type": "object",
                     "properties": {},
@@ -467,7 +606,7 @@ class MCPService:
             },
             {
                 "name": "get_page_info",
-                "description": "Gets current page URL, title, tab count, and scroll position. Use this to check where you are.",
+                "description": "Gets current page URL, title, tab count, and scroll position.",
                 "parameters": {
                     "type": "object",
                     "properties": {},
@@ -475,122 +614,11 @@ class MCPService:
                 }
             },
             {
-                "name": "open_new_tab",
-                "description": "Opens a URL in a new browser tab. The new tab becomes the active tab. Use switch_tab to go back.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "url": {"type": "string", "description": "URL to open in the new tab."}
-                    },
-                    "required": ["url"]
-                }
-            },
-            {
-                "name": "switch_tab",
-                "description": "Switches to a browser tab by index (0-based). Tab 0 is the first tab opened.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "index": {"type": "integer", "description": "Tab index (0-based). Use get_page_info to see how many tabs are open."}
-                    },
-                    "required": ["index"]
-                }
-            },
-            {
-                "name": "close_tab",
-                "description": "Closes the current tab and switches to the last remaining tab. Cannot close the last tab (use close_browser instead).",
+                "name": "submit_form",
+                "description": "Auto-finds and clicks a submit button. Prefer using click with a specific uid instead.",
                 "parameters": {
                     "type": "object",
                     "properties": {},
-                    "required": []
-                }
-            },
-            {
-                "name": "execute_javascript",
-                "description": "Executes custom JavaScript code on the page and returns the result. Use for advanced operations like reading hidden data, modifying the DOM, or extracting specific values.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "code": {"type": "string", "description": "JavaScript code to execute. Use return statements to get values back."}
-                    },
-                    "required": ["code"]
-                }
-            },
-            {
-                "name": "drag_and_drop",
-                "description": "Drags an element and drops it on another element. Use for sortable lists, kanban boards, etc.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "source_selector": {"type": "string", "description": "CSS selector or text of the element to drag."},
-                        "target_selector": {"type": "string", "description": "CSS selector or text of the element to drop onto."}
-                    },
-                    "required": ["source_selector", "target_selector"]
-                }
-            },
-            {
-                "name": "upload_file",
-                "description": "Uploads a file to a file input element on the page. The file should be in the 'agent_files' folder.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "selector": {"type": "string", "description": "CSS selector of the file input element."},
-                        "file_path": {"type": "string", "description": "Path to the file to upload. Can be a filename in agent_files or an absolute path."}
-                    },
-                    "required": ["selector", "file_path"]
-                }
-            },
-            {
-                "name": "wait_for_navigation",
-                "description": "Waits for the page URL to change (navigation event). Use after clicking a link or submitting a form that triggers page navigation.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "timeout": {"type": "integer", "description": "Max wait time in milliseconds (default 10000)."}
-                    },
-                    "required": []
-                }
-            },
-            {
-                "name": "scroll_to_element",
-                "description": "Scrolls the page until a specific element is visible on screen. More precise than scroll_page.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "selector": {"type": "string", "description": "CSS selector or text of the element to scroll to."}
-                    },
-                    "required": ["selector"]
-                }
-            },
-            {
-                "name": "switch_to_frame",
-                "description": "Switches into an iframe to interact with its content. Some websites use iframes for forms, embedded content, etc.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "selector": {"type": "string", "description": "CSS selector of the iframe element."}
-                    },
-                    "required": ["selector"]
-                }
-            },
-            {
-                "name": "switch_to_main",
-                "description": "Switches back to the main page from an iframe. Use after done interacting with iframe content.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                    "required": []
-                }
-            },
-            {
-                "name": "handle_dialog",
-                "description": "Handles browser alerts/confirms. Call BEFORE the action that opens dialog.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "action": {"type": "string", "description": "'accept' to click OK, 'dismiss' to click Cancel. Default: 'accept'."},
-                        "prompt_text": {"type": "string", "description": "Text to enter in prompt dialogs (optional)."}
-                    },
                     "required": []
                 }
             },
@@ -673,69 +701,96 @@ class MCPService:
                 return await self._generate_linkedin_post(arguments.get("topic"))
             elif name == "post_to_linkedin":
                 return await self._post_to_linkedin(arguments.get("text"), arguments.get("image_filenames", []))
-            # === BROWSER AUTOMATION TOOLS ===
+            # === BROWSER AUTOMATION TOOLS (BrowserOS Architecture) ===
             elif name == "open_browser":
                 return await browser_automation.open_browser(arguments.get("url"))
-            elif name == "get_page_elements":
-                return await browser_automation.get_page_elements()
-            elif name == "fill_input":
-                return await browser_automation.fill_input(arguments.get("selector"), arguments.get("value"))
-            elif name == "click_element":
-                return await browser_automation.click_element(arguments.get("selector"))
+            elif name == "take_snapshot":
+                return await browser_automation.take_snapshot()
+            elif name == "click":
+                return await browser_automation.click(arguments.get("uid"), arguments.get("dbl_click", False))
+            elif name == "hover":
+                return await browser_automation.hover(arguments.get("uid"))
+            elif name == "fill":
+                return await browser_automation.fill(arguments.get("uid"), arguments.get("value"))
+            elif name == "fill_form":
+                return await browser_automation.fill_form(arguments.get("elements", []))
             elif name == "select_option":
-                return await browser_automation.select_option(arguments.get("selector"), arguments.get("option_text"))
-            elif name == "submit_form":
-                return await browser_automation.submit_form()
+                return await browser_automation.select_option(arguments.get("uid"), arguments.get("option_text"))
+            elif name == "drag":
+                return await browser_automation.drag(arguments.get("from_uid"), arguments.get("to_uid"))
+            elif name == "upload_file":
+                return await browser_automation.upload_file(arguments.get("uid"), arguments.get("file_path"))
+            elif name == "navigate_page":
+                return await browser_automation.navigate_page(arguments.get("url"))
+            elif name == "navigate_history":
+                return await browser_automation.navigate_history(arguments.get("direction"))
+            elif name == "new_page":
+                return await browser_automation.new_page(arguments.get("url"))
+            elif name == "list_pages":
+                return await browser_automation.list_pages()
+            elif name == "select_page":
+                return await browser_automation.select_page(arguments.get("page_idx"))
+            elif name == "close_page":
+                return await browser_automation.close_page(arguments.get("page_idx"))
             elif name == "close_browser":
                 return await browser_automation.close_browser()
-            # === NEW BROWSER TOOLS ===
-            elif name == "hover_element":
-                return await browser_automation.hover_element(arguments.get("selector"))
-            elif name == "navigate_to":
-                return await browser_automation.navigate_to(arguments.get("url"))
-            elif name == "wait_for_element":
-                return await browser_automation.wait_for_element(arguments.get("selector"), arguments.get("timeout", 5000))
-            elif name == "scroll_page":
-                return await browser_automation.scroll_page(arguments.get("direction", "down"))
-            elif name == "take_page_screenshot":
-                return await browser_automation.take_page_screenshot()
-            # === BROWSEROS-LEVEL BROWSER TOOLS ===
+            elif name == "take_screenshot":
+                return await browser_automation.take_screenshot(arguments.get("uid"), arguments.get("full_page", False))
             elif name == "extract_text":
                 return await browser_automation.extract_text()
             elif name == "extract_structured_data":
                 return await browser_automation.extract_structured_data(arguments.get("data_type", "auto"))
             elif name == "type_text":
-                return await browser_automation.type_text(arguments.get("text"), arguments.get("selector"))
+                return await browser_automation.type_text(arguments.get("text"), arguments.get("uid"))
             elif name == "press_key":
                 return await browser_automation.press_key(arguments.get("key"), arguments.get("modifiers"))
-            elif name == "go_back":
-                return await browser_automation.go_back()
-            elif name == "go_forward":
-                return await browser_automation.go_forward()
-            elif name == "get_page_info":
-                return await browser_automation.get_page_info()
-            elif name == "open_new_tab":
-                return await browser_automation.open_new_tab(arguments.get("url"))
-            elif name == "switch_tab":
-                return await browser_automation.switch_tab(arguments.get("index", 0))
-            elif name == "close_tab":
-                return await browser_automation.close_tab()
-            elif name == "execute_javascript":
-                return await browser_automation.execute_javascript(arguments.get("code"))
-            elif name == "drag_and_drop":
-                return await browser_automation.drag_and_drop(arguments.get("source_selector"), arguments.get("target_selector"))
-            elif name == "upload_file":
-                return await browser_automation.upload_file(arguments.get("selector"), arguments.get("file_path"))
+            elif name == "scroll_page":
+                return await browser_automation.scroll_page(arguments.get("direction", "down"))
+            elif name == "scroll_to_element":
+                return await browser_automation.scroll_to_element(arguments.get("uid"))
+            elif name == "wait_for":
+                return await browser_automation.wait_for(arguments.get("text"), arguments.get("timeout", 5000))
             elif name == "wait_for_navigation":
                 return await browser_automation.wait_for_navigation(arguments.get("timeout", 10000))
-            elif name == "scroll_to_element":
-                return await browser_automation.scroll_to_element(arguments.get("selector"))
-            elif name == "switch_to_frame":
-                return await browser_automation.switch_to_frame(arguments.get("selector"))
-            elif name == "switch_to_main":
-                return await browser_automation.switch_to_main()
+            elif name == "execute_javascript":
+                return await browser_automation.execute_javascript(arguments.get("code"))
             elif name == "handle_dialog":
                 return await browser_automation.handle_dialog(arguments.get("action", "accept"), arguments.get("prompt_text"))
+            elif name == "switch_to_frame":
+                return await browser_automation.switch_to_frame(arguments.get("uid"))
+            elif name == "switch_to_main":
+                return await browser_automation.switch_to_main()
+            elif name == "get_page_info":
+                return await browser_automation.get_page_info()
+            elif name == "submit_form":
+                return await browser_automation.submit_form()
+            # Legacy tool name compatibility
+            elif name == "get_page_elements":
+                return await browser_automation.take_snapshot()
+            elif name == "click_element":
+                return await browser_automation.click(arguments.get("uid") or arguments.get("selector"))
+            elif name == "fill_input":
+                return await browser_automation.fill(arguments.get("uid") or arguments.get("selector"), arguments.get("value"))
+            elif name == "hover_element":
+                return await browser_automation.hover(arguments.get("uid") or arguments.get("selector"))
+            elif name == "navigate_to":
+                return await browser_automation.navigate_page(arguments.get("url"))
+            elif name == "go_back":
+                return await browser_automation.navigate_history('back')
+            elif name == "go_forward":
+                return await browser_automation.navigate_history('forward')
+            elif name == "open_new_tab":
+                return await browser_automation.new_page(arguments.get("url"))
+            elif name == "switch_tab":
+                return await browser_automation.select_page(arguments.get("index", 0))
+            elif name == "close_tab":
+                return await browser_automation.close_tab()
+            elif name == "drag_and_drop":
+                return await browser_automation.drag(arguments.get("from_uid") or arguments.get("source_selector"), arguments.get("to_uid") or arguments.get("target_selector"))
+            elif name == "take_page_screenshot":
+                return await browser_automation.take_screenshot()
+            elif name == "wait_for_element":
+                return await browser_automation.wait_for(arguments.get("text") or arguments.get("selector"), arguments.get("timeout", 5000))
             # === YOUTUBE TRANSCRIPT TOOLS ===
             elif name == "youtube_transcript_search":
                 return self._youtube_transcript_search(arguments.get("video_url"), arguments.get("search_phrase"))
