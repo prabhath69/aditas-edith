@@ -19,3 +19,4 @@ openpyxl
 apscheduler
 tabulate
 youtube-transcript-api
+nodriver

@@ -1,0 +1,32 @@
+{
+    "name": "edith-extension",
+    "description": "EDITH - AI Browser Agent Extension",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "wxt",
+        "dev:chrome": "wxt --browser chrome",
+        "build": "wxt build",
+        "build:chrome": "wxt build --browser chrome",
+        "zip": "wxt zip",
+        "zip:chrome": "wxt zip --browser chrome",
+        "prepare": "wxt prepare",
+        "type-check": "wxt build --mode development && tsc --noEmit"
+    },
+    "dependencies": {
+        "openai": "^4.86.2",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    },
+    "devDependencies": {
+        "@wxt-dev/module-react": "^1.1.0",
+        "@types/chrome": "^0.0.301",
+        "@types/react": "^18.3.18",
+        "@types/react-dom": "^18.3.5",
+        "autoprefixer": "^10.4.20",
+        "postcss": "^8.5.3",
+        "tailwindcss": "^3.4.17",
+        "typescript": "^5.7.3",
+        "wxt": "^0.20.17"
+    }
+}
