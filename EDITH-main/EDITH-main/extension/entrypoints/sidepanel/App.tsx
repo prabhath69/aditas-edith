@@ -3,7 +3,7 @@ import type { Message, Conversation, StoredSettings } from '../../lib/storage';
 import { getSettings, saveSettings, getConversations } from '../../lib/storage';
 
 type View = 'chat' | 'settings' | 'history';
-type ChatMode = 'chat' | 'agent';
+type ChatMode = 'chat' | 'agent' | 'research';
 
 export default function App() {
     const [view, setView] = useState<View>('chat');
@@ -92,7 +92,7 @@ export default function App() {
         setInput('');
         setIsRunning(true);
         setProgressLog([]);
-        setStatusText(mode === 'agent' ? 'Starting agent...' : 'Thinking...');
+        setStatusText(mode === 'agent' ? 'Starting agent...' : mode === 'research' ? 'Starting research...' : 'Thinking...');
 
         // Optimistically show user message
         const userMsg: Message = {
@@ -112,6 +112,13 @@ export default function App() {
                     conversationId: activeConvId,
                 });
                 // isRunning stays true until agent_done or agent_error event arrives
+            } else if (mode === 'research') {
+                // Multi-tab research mode
+                await chrome.runtime.sendMessage({
+                    type: 'RESEARCH_RUN',
+                    prompt,
+                    conversationId: activeConvId,
+                });
             } else {
                 // Chat: background responds synchronously
                 const response = await chrome.runtime.sendMessage({
@@ -151,6 +158,24 @@ export default function App() {
             sendMessage();
         }
     };
+
+    const stopAgent = useCallback(async () => {
+        try {
+            await chrome.runtime.sendMessage({ type: 'AGENT_STOP' });
+        } catch {
+            // Ignore if background is not reachable
+        }
+        setIsRunning(false);
+        setProgressLog([]);
+        setStatusText('');
+        const stopMsg: Message = {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: '⏹ Automation stopped by user.',
+            timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, stopMsg]);
+    }, []);
 
     const saveAppSettings = async () => {
         await saveSettings(settings);
@@ -295,7 +320,7 @@ export default function App() {
                                     Your AI browser agent. Use <strong style={{ color: 'var(--accent)' }}>🤖 Agent Mode</strong> to automate any browser task.
                                 </p>
                                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                    {['Go to YouTube and search for Coldplay music', 'Search Amazon for wireless headphones under $50', 'Open GitHub and show trending repos today'].map((s) => (
+                                    {['Go to YouTube and search for Coldplay music', 'Search Amazon for wireless headphones under $50', 'Compare AAPL stock on Yahoo Finance vs Google Finance'].map((s) => (
                                         <button key={s} onClick={() => setInput(s)} style={{ textAlign: 'left', padding: '8px 12px', borderRadius: 8, fontSize: 12, cursor: 'pointer', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                                             {s}
                                         </button>
@@ -309,9 +334,21 @@ export default function App() {
                         {/* Agent progress log */}
                         {isRunning && progressLog.length > 0 && (
                             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, color: 'var(--accent)', fontSize: 12, fontWeight: 600 }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', animation: 'pulse 1.5s infinite' }} />
-                                    Agent running...
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent)', fontSize: 12, fontWeight: 600 }}>
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', animation: 'pulse 1.5s infinite' }} />
+                                        Agent running...
+                                    </div>
+                                    <button
+                                        onClick={stopAgent}
+                                        style={{
+                                            padding: '2px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 600,
+                                            background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444',
+                                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                                        }}
+                                    >
+                                        ⏹ Stop
+                                    </button>
                                 </div>
                                 {progressLog.map((log, i) => (
                                     <div key={i} style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace', paddingLeft: 14 }}>{log}</div>
@@ -333,7 +370,7 @@ export default function App() {
                     <div style={{ flexShrink: 0, padding: '10px 12px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
                         {/* Mode toggle */}
                         <div style={{ display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
-                            {(['chat', 'agent'] as ChatMode[]).map((m) => (
+                            {(['chat', 'agent', 'research'] as ChatMode[]).map((m) => (
                                 <button
                                     key={m}
                                     onClick={() => setMode(m)}
@@ -344,11 +381,14 @@ export default function App() {
                                         border: `1px solid ${mode === m ? 'var(--accent)' : 'var(--border)'}`,
                                     }}
                                 >
-                                    {m === 'agent' ? '🤖 Agent' : '💬 Chat'}
+                                    {m === 'agent' ? '🤖 Agent' : m === 'research' ? '🔬 Research' : '💬 Chat'}
                                 </button>
                             ))}
                             {mode === 'agent' && (
                                 <span style={{ fontSize: 11, color: 'var(--warning)' }}>Controls your browser</span>
+                            )}
+                            {mode === 'research' && (
+                                <span style={{ fontSize: 11, color: 'var(--warning)' }}>Multi-tab parallel</span>
                             )}
                         </div>
 
@@ -357,7 +397,7 @@ export default function App() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder={mode === 'agent' ? 'Give EDITH a browser task...' : 'Ask EDITH anything...'}
+                                placeholder={mode === 'agent' ? 'Give EDITH a browser task...' : mode === 'research' ? 'What do you want to research across sites?' : 'Ask EDITH anything...'}
                                 rows={1}
                                 disabled={isRunning}
                                 style={{
@@ -366,18 +406,34 @@ export default function App() {
                                     maxHeight: 100, overflowY: 'auto',
                                 }}
                             />
-                            <button
-                                onClick={sendMessage}
-                                disabled={isRunning || !input.trim()}
-                                style={{
-                                    width: 32, height: 32, borderRadius: 8, flexShrink: 0, cursor: 'pointer',
-                                    background: isRunning || !input.trim() ? 'rgba(92,115,242,0.3)' : 'var(--accent)',
-                                    border: 'none', color: '#fff',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                }}
-                            >
-                                ➤
-                            </button>
+                            {isRunning ? (
+                                <button
+                                    onClick={stopAgent}
+                                    title="Stop automation"
+                                    style={{
+                                        width: 32, height: 32, borderRadius: 8, flexShrink: 0, cursor: 'pointer',
+                                        background: '#ef4444',
+                                        border: 'none', color: '#fff',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: 14,
+                                    }}
+                                >
+                                    ⏹
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={sendMessage}
+                                    disabled={!input.trim()}
+                                    style={{
+                                        width: 32, height: 32, borderRadius: 8, flexShrink: 0, cursor: 'pointer',
+                                        background: !input.trim() ? 'rgba(92,115,242,0.3)' : 'var(--accent)',
+                                        border: 'none', color: '#fff',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}
+                                >
+                                    ➤
+                                </button>
+                            )}
                         </div>
                         <p style={{ fontSize: 10, marginTop: 6, textAlign: 'center', color: 'var(--text-secondary)', opacity: 0.6 }}>
                             Enter to send · Shift+Enter for new line
