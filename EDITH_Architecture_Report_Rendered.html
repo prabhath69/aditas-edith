@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>-</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="edith-complete-technical-architecture-report">EDITH — Complete
+Technical Architecture Report</h1>
+<blockquote>
+<p><strong>EDITH</strong> — <em>Elite Digital Intelligence &amp; Task
+Handler</em> A Chrome Extension-based AI agent with autonomous browser
+automation, multi-tab parallel research, and intelligent document
+processing.</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#1-technology-stack">Technology Stack</a></li>
+<li><a href="#2-high-level-system-architecture">High-Level System
+Architecture</a></li>
+<li><a href="#3-extension-architecture--the-core-agent">Extension
+Architecture — The Core Agent</a></li>
+<li><a href="#4-modes-of-operation">Modes of Operation</a></li>
+<li><a href="#5-data-flow">Data Flow</a></li>
+<li><a href="#6-browser-automation-engine-cdp">Browser Automation
+Engine</a></li>
+<li><a href="#7-multi-tab-research-orchestrator">Multi-Tab Research
+Orchestrator</a></li>
+<li><a href="#8-tool-ecosystem">Tool Ecosystem</a></li>
+<li><a href="#9-document-intelligence-module">Document Intelligence
+Module</a></li>
+<li><a href="#10-storage--state-management">Storage &amp; State
+Management</a></li>
+<li><a href="#11-llm-integration">LLM Integration</a></li>
+<li><a href="#12-project-file-structure">Project File Structure</a></li>
+<li><a href="#13-security-architecture">Security Architecture</a></li>
+</ol>
+<hr />
+<h2 id="technology-stack">1. Technology Stack</h2>
+<h3 id="chrome-extension-core-agent">1.1 Chrome Extension — Core
+Agent</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Technology</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>WXT</strong></td>
+<td>0.20.17</td>
+<td>Chrome extension framework (Manifest V3)</td>
+</tr>
+<tr class="even">
+<td><strong>TypeScript</strong></td>
+<td>5.7.3</td>
+<td>Type-safe logic across all modules</td>
+</tr>
+<tr class="odd">
+<td><strong>React</strong></td>
+<td>18.3.1</td>
+<td>Sidepanel &amp; New Tab UI</td>
+</tr>
+<tr class="even">
+<td><strong>React DOM</strong></td>
+<td>18.3.1</td>
+<td>DOM rendering for extension pages</td>
+</tr>
+<tr class="odd">
+<td><strong>OpenAI SDK</strong></td>
+<td>4.86.2</td>
+<td>LLM API calls directly from browser context</td>
+</tr>
+<tr class="even">
+<td><strong>TailwindCSS</strong></td>
+<td>3.4.17</td>
+<td>Utility-first styling for extension UI</td>
+</tr>
+<tr class="odd">
+<td><strong>PostCSS</strong></td>
+<td>8.5.3</td>
+<td>CSS processing pipeline</td>
+</tr>
+<tr class="even">
+<td><strong>Chrome Debugger API</strong></td>
+<td>CDP</td>
+<td>DOM automation via Chrome DevTools Protocol</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Chrome Extension Permissions:</strong> <code>debugger</code>
+· <code>sidePanel</code> · <code>storage</code> · <code>tabs</code> ·
+<code>activeTab</code> · <code>scripting</code> · <code>alarms</code> ·
+<code>notifications</code> · <code>&lt;all_urls&gt;</code></p>
+<h3 id="document-intelligence-module">1.2 Document Intelligence
+Module</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>FastAPI + Uvicorn</strong></td>
+<td>REST API server</td>
+</tr>
+<tr class="even">
+<td><strong>Sentence-Transformers</strong>
+(<code>intfloat/e5-large-v2</code>)</td>
+<td>Text embedding model</td>
+</tr>
+<tr class="odd">
+<td><strong>FAISS (CPU)</strong></td>
+<td>Vector similarity search</td>
+</tr>
+<tr class="even">
+<td><strong>PyMuPDF (fitz)</strong></td>
+<td>PDF parsing with hyperlink extraction</td>
+</tr>
+<tr class="odd">
+<td><strong>python-docx</strong></td>
+<td>Word document parsing</td>
+</tr>
+<tr class="even">
+<td><strong>python-pptx</strong></td>
+<td>PowerPoint parsing + embedded image OCR</td>
+</tr>
+<tr class="odd">
+<td><strong>OpenPyXL + Pandas</strong></td>
+<td>Excel/CSV parsing &amp; analysis</td>
+</tr>
+<tr class="even">
+<td><strong>Pillow + Pytesseract</strong></td>
+<td>OCR for images and embedded visuals</td>
+</tr>
+<tr class="odd">
+<td><strong>Google GenAI</strong> (<code>gemini-2.5-flash</code>)</td>
+<td>Primary LLM for Q&amp;A</td>
+</tr>
+<tr class="even">
+<td><strong>OpenAI</strong> (<code>gpt-5-nano</code>)</td>
+<td>Fallback LLM</td>
+</tr>
+<tr class="odd">
+<td><strong>LangChain + LangGraph</strong></td>
+<td>Interactive reasoning agent orchestration</td>
+</tr>
+<tr class="even">
+<td><strong>BeautifulSoup4</strong></td>
+<td>Web scraping for linked documents</td>
+</tr>
+</tbody>
+</table>
+<h3 id="external-ai-services">1.3 External AI Services</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Service</th>
+<th>Model</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>OpenAI</strong></td>
+<td><code>gpt-5-nano</code> (configurable)</td>
+<td>Primary agent LLM — reasoning, tool-calling, intent</td>
+</tr>
+<tr class="even">
+<td><strong>OpenAI</strong></td>
+<td><code>gpt-4</code></td>
+<td>Interactive reasoning agent (Document Intelligence)</td>
+</tr>
+<tr class="odd">
+<td><strong>Google Gemini</strong></td>
+<td><code>gemini-2.5-flash</code></td>
+<td>Primary LLM for document Q&amp;A (with key rotation)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="high-level-system-architecture">2. High-Level System
+Architecture</h2>
+<p>EDITH is composed of <strong>two independent systems</strong> that
+together form the project:</p>
+<pre class="mermaid"><code>graph TB
+    subgraph &quot;Core Agent — Chrome Extension&quot;
+        SP[&quot;Sidepanel UI&lt;br/&gt;(React + TailwindCSS)&quot;]
+        NT[&quot;New Tab Page&quot;]
+        BG[&quot;Background Service Worker&lt;br/&gt;(Message Router + Agent Loops)&quot;]
+        AM[&quot;Automation Layer&lt;br/&gt;(CDP Protocol)&quot;]
+        LLM_EXT[&quot;LLM Client&lt;br/&gt;(OpenAI SDK)&quot;]
+        RES[&quot;Research Orchestrator&lt;br/&gt;(Multi-Tab Parallel)&quot;]
+        STR[&quot;Storage Layer&lt;br/&gt;(chrome.storage.local)&quot;]
+        TABS[&quot;Browser Tabs&lt;br/&gt;(Real Chrome)&quot;]
+
+        SP --&gt;|&quot;chrome.runtime.sendMessage&quot;| BG
+        NT --&gt; BG
+        BG --&gt;|&quot;callLLM()&quot;| LLM_EXT
+        BG --&gt;|&quot;agent loop&quot;| AM
+        BG --&gt;|&quot;research plan&quot;| RES
+        RES --&gt;|&quot;parallel tabs&quot;| AM
+        AM --&gt;|&quot;chrome.debugger&lt;br/&gt;CDP commands&quot;| TABS
+        BG --&gt; STR
+    end
+
+    subgraph &quot;Document Intelligence — FastAPI Microservice&quot;
+        API[&quot;FastAPI Server&lt;br/&gt;POST /api/v1/hackrx/run&quot;]
+        DP[&quot;Document Parser&lt;br/&gt;(PDF/DOCX/PPTX/XLSX/IMG)&quot;]
+        EMB[&quot;Embedding Engine&lt;br/&gt;(e5-large-v2)&quot;]
+        FAISS[&quot;FAISS Vector Index&quot;]
+        RAG[&quot;RAG Pipeline&lt;br/&gt;(Gemini / OpenAI)&quot;]
+        AGENT[&quot;Interactive Agent&lt;br/&gt;(LangGraph + GPT-4)&quot;]
+
+        API --&gt; DP --&gt; EMB --&gt; FAISS
+        API --&gt; RAG
+        FAISS --&gt; RAG
+        RAG --&gt;|&quot;if interactive&quot;| AGENT
+    end
+
+    LLM_EXT --&gt;|&quot;OpenAI API&quot;| OAI[&quot;OpenAI&lt;br/&gt;gpt-5-nano&quot;]
+
+    style SP fill:#6C5CE7,color:#fff
+    style BG fill:#FDCB6E,color:#000
+    style AM fill:#00B894,color:#fff
+    style RES fill:#74B9FF,color:#fff
+    style API fill:#E17055,color:#fff
+    style RAG fill:#A29BFE,color:#fff</code></pre>
+<hr />
+<h2 id="extension-architecture-the-core-agent">3. Extension Architecture
+— The Core Agent</h2>
+<p>The extension follows a <strong>3-layer architecture</strong>: UI →
+Background Service Worker → Automation Layer.</p>
+<h3 id="layer-breakdown">3.1 Layer Breakdown</h3>
+<pre><code>┌────────────────────── ENTRYPOINTS ───────────────────────────────────────┐
+│                                                                          │
+│  Sidepanel (entrypoints/sidepanel/)      New Tab (entrypoints/newtab/)  │
+│  ├── main.tsx  → React mount             ├── main.tsx                   │
+│  └── App.tsx   → Chat UI, settings       └── index.html                │
+│                                                                          │
+│  ── Communicates via chrome.runtime.sendMessage() ──                    │
+│                                                                          │
+└─────────────────────────┬────────────────────────────────────────────────┘
+                          ▼
+┌────────────────────── BACKGROUND SERVICE WORKER ─────────────────────────┐
+│  (entrypoints/background/index.ts — 715 lines)                          │
+│                                                                          │
+│  Message Router:                                                         │
+│    ┌──────────────┬────────────────────────────────────────────┐        │
+│    │ Message Type │ Handler                                    │        │
+│    ├──────────────┼────────────────────────────────────────────┤        │
+│    │ CHAT         │ handleChat() → LLM-only, no browser       │        │
+│    │ AGENT_RUN    │ runAgent()   → single-tab browser agent    │        │
+│    │ RESEARCH_RUN │ runResearchFromPrompt() → multi-tab        │        │
+│    │ AGENT_STOP   │ agentAbortFlag = true → immediate halt     │        │
+│    │ GET_CONVERS  │ getConversations() → return history        │        │
+│    └──────────────┴────────────────────────────────────────────┘        │
+│                                                                          │
+│  Scheduled Tasks:                                                        │
+│    chrome.alarms → triggers runAgent() for scheduled prompts             │
+│                                                                          │
+└─────────────────────────┬────────────────────────────────────────────────┘
+                          ▼
+┌────────────────────── LIBRARY LAYER (lib/) ───────────────────────────────┐
+│                                                                           │
+│  agent.ts        → System prompt, browser tool definitions, snapshot fmt │
+│  automation.ts   → CDP-based DOM automation (1186 lines)                 │
+│  research.ts     → Multi-tab research decompose/execute/aggregate        │
+│  llm.ts          → OpenAI SDK wrapper (callLLM, message formatting)      │
+│  storage.ts      → chrome.storage.local CRUD for settings/conversations  │
+│  tab_manager.ts  → Tab lifecycle: create, detach, track active tabs      │
+│                                                                           │
+└───────────────────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="key-source-files-responsibilities">3.2 Key Source Files &amp;
+Responsibilities</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Lines</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/entrypoints/background/index.ts">background/index.ts</a></td>
+<td>715</td>
+<td>Service worker: message routing, agent loop, research runner, alarm
+handler</td>
+</tr>
+<tr class="even">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/agent.ts">agent.ts</a></td>
+<td>398</td>
+<td>System prompt (140 lines), <code>BROWSER_TOOLS</code> definitions
+(15 tools), <a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/agent.ts#141-242">formatSnapshot()</a>,
+<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/agent.ts#243-262">pruneHistory()</a></td>
+</tr>
+<tr class="odd">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/automation.ts">automation.ts</a></td>
+<td>1186</td>
+<td>CDP automation: <code>takeSnapshot()</code> (JS injection),
+<code>clickElement()</code>, <code>typeText()</code>,
+<code>pressKey()</code>, <code>scrollPage()</code>,
+<code>selectOption()</code>, <code>hoverElement()</code>,
+<code>setValue()</code></td>
+</tr>
+<tr class="even">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts">research.ts</a></td>
+<td>523</td>
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts#95-138">decomposeTask()</a>,
+<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts#190-482">runSubTask()</a>,
+<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts#495-523">aggregateResults()</a>
+— MapReduce-style parallel research</td>
+</tr>
+<tr class="odd">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/llm.ts">llm.ts</a></td>
+<td>99</td>
+<td>OpenAI SDK client, message format conversion, tool schema
+mapping</td>
+</tr>
+<tr class="even">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/storage.ts">storage.ts</a></td>
+<td>134</td>
+<td>Typed CRUD for settings, conversations (100 max), MCP servers,
+scheduled tasks</td>
+</tr>
+<tr class="odd">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/tab_manager.ts">tab_manager.ts</a></td>
+<td>~100</td>
+<td><code>createTab()</code>, <code>detachAll()</code>, multi-tab
+lifecycle for research</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="modes-of-operation">4. Modes of Operation</h2>
+<p>Every user message enters the background service worker and is routed
+to one of <strong>four execution modes</strong>:</p>
+<h3 id="chat-mode-simple-conversation">4.1 CHAT Mode — Simple
+Conversation</h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant U as User (Sidepanel)
+    participant BG as Background Worker
+    participant LLM as OpenAI API
+
+    U-&gt;&gt;BG: { type: &quot;CHAT&quot;, prompt: &quot;Hello!&quot; }
+    BG-&gt;&gt;BG: Load settings + conversation
+    BG-&gt;&gt;LLM: callLLM(prompt, history, tools=[])
+    Note over BG,LLM: No browser tools provided&lt;br/&gt;Pure text conversation
+    LLM--&gt;&gt;BG: &quot;Hi! I can help you browse...&quot;
+    BG-&gt;&gt;BG: Save to chrome.storage.local
+    BG--&gt;&gt;U: sendResponse({ ok: true })</code></pre>
+<p><strong>Characteristics:</strong> - <strong>No browser tools</strong>
+are passed to the LLM (empty tools array) - Synchronous response —
+sidepanel waits for <code>sendResponse</code> - Conversation persisted
+to <code>chrome.storage.local</code> - Used for: greetings, questions
+about capabilities, general chat</p>
+<hr />
+<h3 id="agent_run-mode-single-tab-browser-automation">4.2 AGENT_RUN Mode
+— Single-Tab Browser Automation</h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant U as User (Sidepanel)
+    participant BG as Background Worker
+    participant LLM as OpenAI API
+    participant CDP as Chrome Debugger
+    participant TAB as Browser Tab
+
+    U-&gt;&gt;BG: { type: &quot;AGENT_RUN&quot;, prompt: &quot;Search Amazon for laptop&quot; }
+    BG--&gt;&gt;U: { ok: true } (immediate ack)
+    Note over U: Sidepanel now listens&lt;br/&gt;for broadcastEvent()
+
+    loop Agent Loop (max 30 steps)
+        BG-&gt;&gt;LLM: callLLM(SYSTEM_PROMPT, history, BROWSER_TOOLS)
+        alt LLM returns tool_calls
+            LLM--&gt;&gt;BG: [{ name: &quot;open_browser&quot;, args: {url: &quot;amazon.com&quot;} }]
+            BG-&gt;&gt;BG: progress(&quot;🔧 open_browser: ...&quot;)
+            BG-&gt;&gt;CDP: openBrowser(&quot;https://amazon.com&quot;)
+            CDP-&gt;&gt;TAB: chrome.debugger.attach + Page.navigate
+            CDP--&gt;&gt;BG: tabId
+            BG-&gt;&gt;BG: sleep(1500ms)
+            Note over BG: Next iteration...
+        else LLM returns tool: take_snapshot
+            BG-&gt;&gt;CDP: takeSnapshot(tabId)
+            CDP-&gt;&gt;TAB: Runtime.evaluate(SNAPSHOT_JS)
+            TAB--&gt;&gt;CDP: { url, title, elements[], rawText }
+            CDP--&gt;&gt;BG: PageSnapshot
+            BG-&gt;&gt;BG: formatSnapshot(snapshot)
+            Note over BG: Elements formatted with UIDs&lt;br/&gt;Prioritized: inputs → buttons → links
+        else LLM returns tool: click(uid)
+            BG-&gt;&gt;CDP: clickElement(uid, snapshot, tabId)
+            CDP-&gt;&gt;TAB: Input.dispatchMouseEvent(x, y)
+            BG-&gt;&gt;BG: sleep(1200ms)
+            BG-&gt;&gt;CDP: auto-takeSnapshot()
+            Note over BG: Auto-snapshot after every action
+        else LLM returns task_complete
+            LLM--&gt;&gt;BG: { name: &quot;task_complete&quot;, args: {summary: &quot;Done!&quot;} }
+            BG-&gt;&gt;BG: Save final message
+            BG-&gt;&gt;CDP: detachDebugger(tabId)
+            BG-&gt;&gt;U: broadcastEvent({ type: &quot;agent_done&quot; })
+            Note over BG: EXIT agent loop
+        else LLM returns text (no tools)
+            LLM--&gt;&gt;BG: &quot;Task completed.&quot;
+            BG-&gt;&gt;U: broadcastEvent({ type: &quot;agent_done&quot; })
+            Note over BG: EXIT agent loop
+        end
+    end</code></pre>
+<p><strong>Characteristics:</strong> - <strong>Asynchronous</strong> —
+sends immediate ack, then broadcasts progress events - <strong>Max 30
+steps</strong> per run - <strong>15 browser tools</strong> provided via
+<code>BROWSER_TOOLS</code> from <a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/agent.ts">agent.ts</a>
+- <strong>Auto-snapshot</strong> after every mutating action (click,
+type_text, press_key, hover, select_option, set_value) -
+<strong>Snapshot loop detection</strong> — warns after 3 consecutive
+snapshots without action - <strong>New tab detection</strong> —
+automatically switches <code>activeTabId</code> when clicks open new
+tabs - <strong>Abort support</strong> — <code>agentAbortFlag</code>
+checked before each iteration and each tool execution</p>
+<hr />
+<h3 id="research_run-mode-multi-tab-parallel-research">4.3 RESEARCH_RUN
+Mode — Multi-Tab Parallel Research</h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant U as User (Sidepanel)
+    participant BG as Background Worker
+    participant LLM as OpenAI API
+    participant TM as Tab Manager
+    participant T1 as Tab 1
+    participant T2 as Tab 2
+    participant T3 as Tab 3
+
+    U-&gt;&gt;BG: { type: &quot;RESEARCH_RUN&quot;, prompt: &quot;Compare iPhone 16 prices&quot; }
+    BG--&gt;&gt;U: { ok: true } (immediate ack)
+
+    rect rgb(240, 248, 255)
+        Note over BG,LLM: Phase 1: Task Decomposition
+        BG-&gt;&gt;LLM: decomposeTask(prompt)
+        LLM--&gt;&gt;BG: { isResearch: true, subTasks: [&lt;br/&gt;  {url: &quot;amazon.com&quot;, goal: &quot;iPhone 16 price&quot;},&lt;br/&gt;  {url: &quot;flipkart.com&quot;, goal: &quot;iPhone 16 price&quot;},&lt;br/&gt;  {url: &quot;apple.com&quot;, goal: &quot;official price&quot;}&lt;br/&gt;] }
+    end
+
+    rect rgb(255, 248, 240)
+        Note over BG,T3: Phase 2: Parallel Execution
+        BG-&gt;&gt;TM: createTab(amazon.com) → tabId1
+        BG-&gt;&gt;TM: createTab(flipkart.com) → tabId2
+        BG-&gt;&gt;TM: createTab(apple.com) → tabId3
+        BG-&gt;&gt;BG: sleep(2000ms)
+
+        par Run all tabs simultaneously
+            BG-&gt;&gt;T1: runSubTask(settings, subTask1, tabId1)
+            Note over T1: Agent loop: snapshot → type → search → extract
+        and
+            BG-&gt;&gt;T2: runSubTask(settings, subTask2, tabId2)
+            Note over T2: Agent loop: snapshot → type → search → extract
+        and
+            BG-&gt;&gt;T3: runSubTask(settings, subTask3, tabId3)
+            Note over T3: Agent loop: snapshot → type → search → extract
+        end
+    end
+
+    rect rgb(240, 255, 240)
+        Note over BG,LLM: Phase 3: Result Aggregation
+        BG-&gt;&gt;LLM: aggregateResults(prompt, subTaskResults[])
+        LLM--&gt;&gt;BG: &quot;iPhone 16 prices:\n• Amazon: ₹79,900\n• Flipkart: ₹78,999\n• Apple: ₹79,900&quot;
+    end
+
+    BG-&gt;&gt;TM: detachAll()
+    BG-&gt;&gt;U: broadcastEvent({ type: &quot;agent_done&quot; })</code></pre>
+<p><strong>Characteristics:</strong> - <strong>MapReduce
+pattern</strong> — decompose → parallel execute → synthesize -
+<strong>Max 5 concurrent tabs</strong> (configurable via
+<code>MAX_RESEARCH_TABS</code>) - Each sub-task tab runs its own
+independent agent loop with <code>extract_data</code> as the terminal
+tool (instead of <code>task_complete</code>) - <strong>Minimum 2
+sub-tasks</strong> required — otherwise falls back to Agent mode - Uses
+<code>Promise.allSettled()</code> — partial failures don’t kill the
+entire research - Tabs remain open after research so the user can
+manually review sources</p>
+<hr />
+<h3 id="agent_stop-mode-emergency-halt">4.4 AGENT_STOP Mode — Emergency
+Halt</h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant U as User
+    participant BG as Background Worker
+    participant LOOP as Agent/Research Loop
+
+    U-&gt;&gt;BG: { type: &quot;AGENT_STOP&quot; }
+    BG-&gt;&gt;BG: agentAbortFlag = true
+    BG--&gt;&gt;U: { ok: true }
+    
+    Note over LOOP: Next iteration checks flag
+    LOOP-&gt;&gt;LOOP: if (agentAbortFlag) break
+    LOOP-&gt;&gt;BG: detachDebugger()
+    LOOP-&gt;&gt;U: broadcastEvent(&quot;agent_done&quot;)</code></pre>
+<p><strong>Characteristics:</strong> - Sets a global
+<code>agentAbortFlag</code> boolean - Checked at the <strong>top of each
+agent iteration</strong> and <strong>before each tool execution</strong>
+- Gracefully saves conversation state before stopping - Detaches CDP
+debugger to free browser resources</p>
+<hr />
+<h2 id="data-flow">5. Data Flow</h2>
+<h3 id="end-to-end-agent-flow">5.1 End-to-End Agent Flow</h3>
+<pre class="mermaid"><code>flowchart TD
+    A[&quot;👤 User types in Sidepanel&quot;] --&gt; B[&quot;chrome.runtime.sendMessage()&quot;]
+    B --&gt; C{&quot;Message Router&lt;br/&gt;(background/index.ts)&quot;}
+
+    C --&gt;|&quot;type: CHAT&quot;| D[&quot;handleChat()&quot;]
+    C --&gt;|&quot;type: AGENT_RUN&quot;| E[&quot;runAgent()&quot;]
+    C --&gt;|&quot;type: RESEARCH_RUN&quot;| F[&quot;runResearchFromPrompt()&quot;]
+    C --&gt;|&quot;type: AGENT_STOP&quot;| G[&quot;Set abort flag&quot;]
+
+    D --&gt; H[&quot;callLLM(prompt, [], no tools)&quot;]
+    H --&gt; I[&quot;Save response → chrome.storage&quot;]
+    I --&gt; J[&quot;sendResponse to sidepanel&quot;]
+
+    E --&gt; K[&quot;callLLM(SYSTEM_PROMPT,&lt;br/&gt;pruneHistory(messages),&lt;br/&gt;BROWSER_TOOLS)&quot;]
+    K --&gt; L{&quot;LLM Response&quot;}
+    L --&gt;|&quot;tool_calls&quot;| M[&quot;Execute via CDP&quot;]
+    M --&gt; N[&quot;Auto-snapshot&quot;]
+    N --&gt; O[&quot;Append result to history&quot;]
+    O --&gt; K
+    L --&gt;|&quot;task_complete&quot;| P[&quot;Save + broadcast done&quot;]
+    L --&gt;|&quot;text only&quot;| P
+
+    F --&gt; Q[&quot;decomposeTask(prompt)&quot;]
+    Q --&gt; R[&quot;tabManager.createTab() × N&quot;]
+    R --&gt; S[&quot;Promise.allSettled(&lt;br/&gt;runSubTask per tab)&quot;]
+    S --&gt; T[&quot;aggregateResults(results)&quot;]
+    T --&gt; P
+
+    style C fill:#FDCB6E,color:#000
+    style M fill:#00B894,color:#fff
+    style K fill:#6C5CE7,color:#fff
+    style Q fill:#74B9FF,color:#fff</code></pre>
+<h3 id="snapshot-lifecycle">5.2 Snapshot Lifecycle</h3>
+<p>The snapshot is the <strong>central data structure</strong> that
+bridges the LLM and the browser:</p>
+<pre class="mermaid"><code>flowchart LR
+    A[&quot;Chrome Tab&lt;br/&gt;(real webpage)&quot;] --&gt;|&quot;chrome.debugger&lt;br/&gt;Runtime.evaluate&quot;| B[&quot;SNAPSHOT_JS&lt;br/&gt;(injected script)&quot;]
+    B --&gt;|&quot;Scans DOM&quot;| C[&quot;PageSnapshot&quot;]
+    C --&gt; D[&quot;formatSnapshot()&quot;]
+    D --&gt; E[&quot;Prioritized Text&lt;br/&gt;for LLM&quot;]
+    E --&gt;|&quot;Sent as tool result&quot;| F[&quot;LLM&quot;]
+    F --&gt;|&quot;Returns: click(uid: 42)&quot;| G[&quot;clickElement(42, snapshot)&quot;]
+    G --&gt;|&quot;Lookup uid → x,y coords&quot;| H[&quot;CDP: Input.dispatchMouseEvent&quot;]
+    H --&gt; A
+
+    subgraph PageSnapshot
+        C
+        C1[&quot;url: string&quot;]
+        C2[&quot;title: string&quot;]
+        C3[&quot;elements: SnapshotElement[]&quot;]
+        C4[&quot;rawText: string (5000 chars)&quot;]
+    end
+
+    subgraph SnapshotElement
+        C3
+        E1[&quot;uid: number&quot;]
+        E2[&quot;tag, role, name&quot;]
+        E3[&quot;x, y, width, height&quot;]
+        E4[&quot;context (parent section)&quot;]
+        E5[&quot;value, placeholder&quot;]
+        E6[&quot;checked, disabled, options[]&quot;]
+    end</code></pre>
+<p><strong>Snapshot processing pipeline:</strong> 1.
+<strong>Inject</strong> <code>SNAPSHOT_JS</code> into the page via CDP
+<code>Runtime.evaluate</code> 2. <strong>Scan</strong> all DOM elements
+— filter by clickable tags, actionable ARIA roles, and input elements 3.
+<strong>Classify</strong> each element’s type: <code>INPUT</code>,
+<code>BUTTON</code>, <code>LINK</code>, <code>CHECKBOX</code>,
+<code>SELECT</code>, <code>RADIO</code>, etc. 4. <strong>Assign
+UIDs</strong> — sequential numeric IDs based on position 5.
+<strong>Extract context</strong> — walk up to 5 parent levels for
+<code>aria-label</code>, <a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/backend/app/services/mcp_service.py#1582-1594">id</a>,
+<code>class</code> hints 6. <strong>Prioritize</strong> — Tier 1
+(inputs) → Tier 2 (buttons/checkboxes) → Tier 3 (product cards) → Tier 4
+(links) 7. <strong>Format</strong> as a flat text string with
+<code>uid | TYPE | "label" [in: section-context]</code> 8.
+<strong>Append</strong> the page’s <code>rawText</code> (first 5000
+chars) for context</p>
+<hr />
+<h2 id="browser-automation-engine-cdp">6. Browser Automation Engine
+(CDP)</h2>
+<p>The automation layer in <a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/automation.ts">automation.ts</a>
+uses the <strong>Chrome DevTools Protocol</strong> via
+<code>chrome.debugger</code>:</p>
+<h3 id="cdp-architecture">6.1 CDP Architecture</h3>
+<pre class="mermaid"><code>flowchart TD
+    subgraph &quot;Extension Process&quot;
+        A[&quot;automation.ts&quot;]
+        B[&quot;ensureAttached(tabId)&quot;]
+        C[&quot;cdp(tabId, method, params)&quot;]
+    end
+
+    subgraph &quot;Chrome Debugger Bridge&quot;
+        D[&quot;chrome.debugger.attach(tabId, &#39;1.3&#39;)&quot;]
+        E[&quot;chrome.debugger.sendCommand(tabId, method, params)&quot;]
+    end
+
+    subgraph &quot;CDP Domains Used&quot;
+        F[&quot;Page.navigate&quot;]
+        G[&quot;Runtime.evaluate&quot;]
+        H[&quot;Input.dispatchMouseEvent&quot;]
+        I[&quot;Input.dispatchKeyEvent&quot;]
+        J[&quot;DOM.getDocument&quot;]
+        K[&quot;Page.captureScreenshot&quot;]
+        L[&quot;Network events&quot;]
+    end
+
+    A --&gt; B --&gt; D
+    A --&gt; C --&gt; E --&gt; F &amp; G &amp; H &amp; I &amp; J &amp; K &amp; L</code></pre>
+<h3 id="key-automation-functions">6.2 Key Automation Functions</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>CDP Method</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>openBrowser(url)</code></td>
+<td><code>chrome.tabs.create</code> + <a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/automation.ts#43-58">ensureAttached</a></td>
+<td>Opens new tab, attaches debugger, navigates</td>
+</tr>
+<tr class="even">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/automation.ts#68-81">navigateTo(url)</a></td>
+<td><code>Page.navigate</code></td>
+<td>In-tab navigation</td>
+</tr>
+<tr class="odd">
+<td><code>takeSnapshot()</code></td>
+<td><code>Runtime.evaluate(SNAPSHOT_JS)</code></td>
+<td>Injects 300-line JS to scan interactive DOM elements</td>
+</tr>
+<tr class="even">
+<td><code>clickElement(uid)</code></td>
+<td><code>Input.dispatchMouseEvent</code></td>
+<td>Maps UID → (x,y) from snapshot, dispatches mouse events</td>
+</tr>
+<tr class="odd">
+<td><code>typeText(text, uid)</code></td>
+<td><code>Runtime.evaluate</code> (focus) +
+<code>Input.dispatchKeyEvent</code></td>
+<td>Character-by-character typing with 30-80ms delays</td>
+</tr>
+<tr class="even">
+<td><code>pressKey(key)</code></td>
+<td><code>Input.dispatchKeyEvent</code> (keyDown + keyUp)</td>
+<td>Simulates Enter, Tab, Escape, arrows</td>
+</tr>
+<tr class="odd">
+<td><code>scrollPage(dir)</code></td>
+<td><code>Runtime.evaluate</code> (window.scrollBy)</td>
+<td>Scroll up/down/top/bottom</td>
+</tr>
+<tr class="even">
+<td><code>selectOption(uid, value)</code></td>
+<td><code>Runtime.evaluate</code></td>
+<td>Programmatically sets select value + fires change event</td>
+</tr>
+<tr class="odd">
+<td><code>hoverElement(uid)</code></td>
+<td><code>Input.dispatchMouseEvent</code> (mouseMoved)</td>
+<td>Triggers hover states for dropdown menus</td>
+</tr>
+<tr class="even">
+<td><code>setValue(uid, value)</code></td>
+<td><code>Runtime.evaluate</code></td>
+<td>Direct <code>.value</code> injection for numeric fields</td>
+</tr>
+<tr class="odd">
+<td><code>takeScreenshot()</code></td>
+<td><code>Page.captureScreenshot</code></td>
+<td>PNG screenshot of visible viewport</td>
+</tr>
+<tr class="even">
+<td><code>waitForNetworkIdle()</code></td>
+<td>Network event monitoring</td>
+<td>Waits until no pending network requests</td>
+</tr>
+<tr class="odd">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/automation.ts#82-100">waitForLoad()</a></td>
+<td><code>Page.loadEventFired</code></td>
+<td>Waits for page load completion</td>
+</tr>
+<tr class="even">
+<td><code>detachDebugger()</code></td>
+<td><code>chrome.debugger.detach</code></td>
+<td>Releases debugger from tab</td>
+</tr>
+</tbody>
+</table>
+<h3 id="multi-tab-support">6.3 Multi-Tab Support</h3>
+<p>The automation layer tracks attached tabs via
+<code>attachedTabs: Set&lt;number&gt;</code>: - Multiple debugger
+sessions can be active simultaneously (for research) -
+<code>lastSingleTabId</code> provides backward compatibility for
+single-tab agent runs - <code>detachAllDebuggers()</code> cleans up all
+sessions at once</p>
+<hr />
+<h2 id="multi-tab-research-orchestrator">7. Multi-Tab Research
+Orchestrator</h2>
+<p>Defined in <a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts">research.ts</a>,
+the research system uses a <strong>3-phase MapReduce</strong>
+architecture:</p>
+<h3 id="phase-1-task-decomposition-decomposetask">7.1 Phase 1: Task
+Decomposition (<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts#95-138">decomposeTask</a>)</h3>
+<p>An LLM call analyzes the user’s prompt and decides: - <strong>Is this
+a research task?</strong> (<code>isResearch: boolean</code>) -
+<strong>What sub-tasks are needed?</strong> Each with:
+<code>description</code>, <a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/backend/app/services/mcp_service.py#1082-1088">url</a>,
+<code>extractionGoal</code></p>
+<p>The LLM is given strict criteria for what counts as research: &gt;
+Genuine research requiring <strong>2+ different websites</strong> — NOT
+simple browsing, messaging, or single-site tasks.</p>
+<h3 id="phase-2-parallel-execution-runsubtask">7.2 Phase 2: Parallel
+Execution (<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts#190-482">runSubTask</a>)</h3>
+<p>Each sub-task gets: - Its own Chrome tab via
+<code>tabManager.createTab(url)</code> - Its own agent loop (similar to
+<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/entrypoints/background/index.ts#141-495">runAgent</a>
+but with <code>extract_data</code> as terminal tool) - Its own LLM
+conversation context - An abort signal connection to the global abort
+flag</p>
+<p><strong>Sub-task tools</strong> are the same as
+<code>BROWSER_TOOLS</code> but with <code>task_complete</code> replaced
+by <code>extract_data</code> (which captures findings instead of ending
+the run).</p>
+<h3 id="phase-3-aggregation-aggregateresults">7.3 Phase 3: Aggregation
+(<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/research.ts#495-523">aggregateResults</a>)</h3>
+<p>An LLM call receives all extracted data and the original prompt, then
+synthesizes: - Key findings from each source - Differences and
+similarities across sources - Source citations for every data point -
+Tables or bullet points for comparisons</p>
+<hr />
+<h2 id="tool-ecosystem">8. Tool Ecosystem</h2>
+<h3 id="browser-tools-defined-in-agent.ts">8.1 Browser Tools (defined in
+<a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/agent.ts">agent.ts</a>)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Description</th>
+<th>Auto-Snapshots?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>task_complete</code></td>
+<td>Signals task completion — <strong>stops the agent
+immediately</strong></td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><code>open_browser</code></td>
+<td>Opens URL in new tab</td>
+<td>No (manual snapshot needed)</td>
+</tr>
+<tr class="odd">
+<td><code>take_snapshot</code></td>
+<td>Gets all interactive elements with UIDs</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><code>click</code></td>
+<td>Clicks element by UID</td>
+<td>✅ Auto-snapshot after</td>
+</tr>
+<tr class="odd">
+<td><code>type_text</code></td>
+<td>Types text char-by-char into field by UID</td>
+<td>✅ Auto-snapshot after</td>
+</tr>
+<tr class="even">
+<td><code>press_key</code></td>
+<td>Keyboard events (Enter, Tab, Escape, etc.)</td>
+<td>✅ Auto-snapshot after</td>
+</tr>
+<tr class="odd">
+<td><code>scroll</code></td>
+<td>Scrolls page up/down</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/backend/app/services/mcp_service.py#1113-1119">screenshot</a></td>
+<td>Captures visual screenshot</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td><code>select_option</code></td>
+<td>Selects dropdown option by value</td>
+<td>✅ Auto-snapshot after</td>
+</tr>
+<tr class="even">
+<td><code>hover</code></td>
+<td>Triggers hover/mouseover on element</td>
+<td>✅ Auto-snapshot after</td>
+</tr>
+<tr class="odd">
+<td><code>set_value</code></td>
+<td>Direct value injection for inputs</td>
+<td>✅ Auto-snapshot after</td>
+</tr>
+<tr class="even">
+<td><code>wait_for_page_update</code></td>
+<td>Waits for AJAX/network idle</td>
+<td>✅ Auto-snapshot after</td>
+</tr>
+<tr class="odd">
+<td><a
+href="file:///d:/EDITH%20-%20Final%20yr%20project/EDITH-main/EDITH-main/extension/lib/automation.ts#68-81">navigate</a></td>
+<td>In-tab URL navigation</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="research-only-tools">8.2 Research-Only Tools</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>extract_data</code></td>
+<td>Terminal tool for research sub-tasks — captures extracted
+information</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="document-intelligence-module-1">9. Document Intelligence
+Module</h2>
+<p>A standalone FastAPI microservice for intelligent document Q&amp;A,
+located at <code>Document Intelligence/doc_intel/</code>.</p>
+<h3 id="architecture">9.1 Architecture</h3>
+<pre class="mermaid"><code>flowchart TD
+    A[&quot;POST /api/v1/hackrx/run&lt;br/&gt;{documents: url, questions: [...]}&quot;]
+    B[&quot;Token Authentication&lt;br/&gt;(Bearer token)&quot;]
+    A --&gt; B
+
+    B --&gt; C{&quot;URL Type Detection&quot;}
+    C --&gt;|&quot;Has file extension&quot;| D[&quot;download_and_parse_document()&quot;]
+    C --&gt;|&quot;No extension&quot;| E[&quot;HEAD request → detect_file_type_from_response()&quot;]
+    C --&gt;|&quot;API/JSON&quot;| F[&quot;handle_api_link()&quot;]
+
+    D --&gt; G{&quot;Format?&quot;}
+    G --&gt;|PDF| H[&quot;parse_pdf()&lt;br/&gt;(PyMuPDF + link extraction)&quot;]
+    G --&gt;|DOCX| I[&quot;parse_docx()&quot;]
+    G --&gt;|PPTX| J[&quot;parse_pptx()&lt;br/&gt;(+ OCR for embedded images)&quot;]
+    G --&gt;|XLSX| K[&quot;parse_excel()&lt;br/&gt;(Pandas → string)&quot;]
+    G --&gt;|Image| L[&quot;parse_image()&lt;br/&gt;(Pytesseract OCR)&quot;]
+
+    H &amp; I &amp; J &amp; K &amp; L --&gt; M[&quot;pages: string[]&quot;]
+
+    M --&gt; N[&quot;expand_pages_with_linked_content()&lt;br/&gt;(extract URLs → fetch linked docs)&quot;]
+    N --&gt; O[&quot;get_embeddings(pages)&lt;br/&gt;(e5-large-v2 model)&quot;]
+    O --&gt; P[&quot;build_faiss_index(embeddings)&quot;]
+    P --&gt; Q[&quot;save_to_cache()&lt;br/&gt;(pickle + FAISS)&quot;]
+
+    Q --&gt; R[&quot;ThreadPoolExecutor&lt;br/&gt;(8-16 workers)&quot;]
+    R --&gt; S[&quot;process_question() × N&quot;]
+
+    S --&gt; T[&quot;FAISS search: top-15 chunks&quot;]
+    T --&gt; U{&quot;Contains URLs/API links?&quot;}
+
+    U --&gt;|&quot;No&quot;| V[&quot;Standard RAG&lt;br/&gt;TEMPLATE.format(clauses, question)&lt;br/&gt;→ Gemini 2.5 Flash&quot;]
+    U --&gt;|&quot;Yes&quot;| W[&quot;Interactive Agent&lt;br/&gt;(LangGraph + GPT-4)&quot;]
+
+    V --&gt; X[&quot;Gemini fails?&quot;]
+    X --&gt;|&quot;Yes&quot;| Y[&quot;Fallback: OpenAI gpt-5-nano&quot;]
+    X --&gt;|&quot;No&quot;| Z[&quot;Return answer&quot;]
+    Y --&gt; Z
+    W --&gt; Z
+
+    style A fill:#E17055,color:#fff
+    style P fill:#00CEC9,color:#fff
+    style V fill:#6C5CE7,color:#fff
+    style W fill:#FDCB6E,color:#000</code></pre>
+<h3 id="dual-path-processing">9.2 Dual-Path Processing</h3>
+<p>The system dynamically chooses between two processing paths:</p>
+<h4 id="path-a-standard-rag-pipeline">Path A: Standard RAG Pipeline</h4>
+<p>For regular documents without interactive instructions: 1. Parse
+document → chunks 2. Embed with <code>e5-large-v2</code> → FAISS index
+3. For each question: semantic search → top-15 chunks → LLM prompt 4.
+Gemini 2.5 Flash (primary) → OpenAI (fallback)</p>
+<h4 id="path-b-interactive-reasoning-agent">Path B: Interactive
+Reasoning Agent</h4>
+<p>For documents containing URLs, API endpoints, or multi-step
+instructions: 1. Detects that relevant chunks contain URLs/API
+references via <code>contains_api_or_url()</code> 2. Activates the
+<strong>LangGraph ReAct agent</strong> with two tools: -
+<code>document_retriever</code> — searches the loaded document via FAISS
+- <code>web_scraper_tool</code> — fetches data from external URLs/APIs
+3. The agent reasons through multi-step instructions autonomously</p>
+<h3 id="key-features">9.3 Key Features</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Multi-format support</strong></td>
+<td>PDF, DOCX, PPTX, XLSX/XLS, JPG/PNG/GIF (OCR)</td>
+</tr>
+<tr class="even">
+<td><strong>Linked document expansion</strong></td>
+<td>Auto-extracts URLs from document text, fetches and indexes linked
+content</td>
+</tr>
+<tr class="odd">
+<td><strong>Embedding caching</strong></td>
+<td>MD5-hashed filenames in <code>pdf_cache/</code> — persistent across
+requests</td>
+</tr>
+<tr class="even">
+<td><strong>Concurrent Q&amp;A</strong></td>
+<td><code>ThreadPoolExecutor</code> with 8-16 workers for batch question
+processing</td>
+</tr>
+<tr class="odd">
+<td><strong>LLM key rotation</strong></td>
+<td>3 Gemini API keys cycled via <code>itertools.cycle()</code></td>
+</tr>
+<tr class="even">
+<td><strong>OneDrive/SharePoint</strong></td>
+<td>Auto-converts sharing URLs to direct download URLs</td>
+</tr>
+<tr class="odd">
+<td><strong>OCR for images in PPTX</strong></td>
+<td>Extracts embedded images from slides and runs Pytesseract</td>
+</tr>
+<tr class="even">
+<td><strong>Prompt engineering</strong></td>
+<td>Domain-specific template for insurance, legal, HR documents</td>
+</tr>
+</tbody>
+</table>
+<h3 id="document-intelligence-file-structure">9.4 Document Intelligence
+File Structure</h3>
+<pre><code>Document Intelligence/doc_intel/
+├── app/
+│   ├── main.py                # FastAPI app, token auth, request logging
+│   ├── document_parser.py     # parse_pdf, parse_docx, parse_pptx, parse_excel, parse_image
+│   ├── embeddings.py          # SentenceTransformer (e5-large-v2) + FAISS index builder
+│   ├── retrieval.py           # RAG pipeline, caching, linked doc expansion, question processing
+│   ├── intractive_agent.py    # LangGraph ReAct agent with document_retriever + web_scraper tools
+│   ├── prompt_template.py     # Domain-specific RAG prompt template
+│   └── utils.py               # clean_response(), contains_api_or_url()
+├── pdf_cache/                  # Persistent embedding cache (pickle + FAISS)
+├── requirements.txt            # 23 Python dependencies
+├── Dockerfile                  # Docker containerization support
+└── .env                        # Gemini keys (×3), OpenAI key, Groq key</code></pre>
+<hr />
+<h2 id="storage-state-management">10. Storage &amp; State
+Management</h2>
+<h3 id="extension-storage-chrome.storage.local">10.1 Extension Storage
+(<code>chrome.storage.local</code>)</h3>
+<pre class="mermaid"><code>graph LR
+    subgraph &quot;chrome.storage.local&quot;
+        A[&quot;edith_api_key&lt;br/&gt;(OpenAI API key)&quot;]
+        B[&quot;edith_api_base_url&lt;br/&gt;(default: api.openai.com/v1)&quot;]
+        C[&quot;edith_model&lt;br/&gt;(default: gpt-4o-mini)&quot;]
+        D[&quot;edith_conversations&lt;br/&gt;(last 100 conversations)&quot;]
+        E[&quot;edith_mcp_servers&lt;br/&gt;(MCP server configs)&quot;]
+        F[&quot;edith_schedules&lt;br/&gt;(scheduled tasks)&quot;]
+    end</code></pre>
+<h3 id="data-structures">10.2 Data Structures</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> Conversation {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    id<span class="op">:</span> <span class="dt">string</span><span class="op">;</span>           <span class="co">// UUID</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    title<span class="op">:</span> <span class="dt">string</span><span class="op">;</span>        <span class="co">// First 60 chars of prompt</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">:</span> Message[]<span class="op">;</span>  <span class="co">// Full message history</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    createdAt<span class="op">:</span> <span class="dt">number</span><span class="op">;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    updatedAt<span class="op">:</span> <span class="dt">number</span><span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> Message {</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    id<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    role<span class="op">:</span> <span class="st">&#39;user&#39;</span> <span class="op">|</span> <span class="st">&#39;assistant&#39;</span> <span class="op">|</span> <span class="st">&#39;tool&#39;</span><span class="op">;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    content<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    toolCalls<span class="op">?:</span> ToolCall[]<span class="op">;</span>   <span class="co">// For assistant messages with tool calls</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    toolCallId<span class="op">?:</span> <span class="dt">string</span><span class="op">;</span>      <span class="co">// For tool response messages</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    toolName<span class="op">?:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    timestamp<span class="op">:</span> <span class="dt">number</span><span class="op">;</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> ScheduledTask {</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    id<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    name<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    prompt<span class="op">:</span> <span class="dt">string</span><span class="op">;</span>           <span class="co">// Agent prompt to execute</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    cronExpression<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    enabled<span class="op">:</span> <span class="dt">boolean</span><span class="op">;</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    lastRun<span class="op">?:</span> <span class="dt">number</span><span class="op">;</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="document-intelligence-caching">10.3 Document Intelligence
+Caching</h3>
+<ul>
+<li><strong>In-memory cache</strong>: <code>pdf_cache</code> dict (keyed
+by document URL)</li>
+<li><strong>Persistent cache</strong>: <code>pdf_cache/</code> directory
+with pickled pages + embeddings</li>
+<li><strong>Cache key</strong>: MD5 hash of the document URL</li>
+<li><strong>FAISS index</strong>: Rebuilt from cached embeddings on load
+(fast)</li>
+</ul>
+<hr />
+<h2 id="llm-integration">11. LLM Integration</h2>
+<h3 id="extension-llm-client">11.1 Extension LLM Client</h3>
+<p>The extension calls OpenAI-compatible APIs directly from the browser
+via the <strong>OpenAI SDK</strong>:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> client <span class="op">=</span> <span class="kw">new</span> <span class="fu">OpenAI</span>({</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    apiKey<span class="op">:</span> settings<span class="op">.</span><span class="at">apiKey</span><span class="op">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    baseURL<span class="op">:</span> settings<span class="op">.</span><span class="at">apiBaseUrl</span><span class="op">,</span>       <span class="co">// User-configurable</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    dangerouslyAllowBrowser<span class="op">:</span> <span class="kw">true</span><span class="op">,</span>      <span class="co">// Required for extension context</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> client<span class="op">.</span><span class="at">chat</span><span class="op">.</span><span class="at">completions</span><span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    model<span class="op">:</span> settings<span class="op">.</span><span class="at">model</span><span class="op">,</span>              <span class="co">// User-configurable (default: gpt-4o-mini)</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">:</span> [system<span class="op">,</span> <span class="op">...</span>history]<span class="op">,</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    tools<span class="op">:</span> browserTools<span class="op">,</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    tool_choice<span class="op">:</span> <span class="st">&#39;auto&#39;</span><span class="op">,</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    max_completion_tokens<span class="op">:</span> <span class="dv">4096</span><span class="op">,</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<h3 id="system-prompt-architecture">11.2 System Prompt Architecture</h3>
+<p>The <code>SYSTEM_PROMPT</code> in <code>agent.ts</code> (140 lines)
+contains: - <strong>Workflow instructions</strong>: open → snapshot →
+interact → verify → complete - <strong>Snapshot reading guide</strong>:
+How to interpret UIDs, types, and section context -
+<strong>Site-specific intelligence</strong>: YouTube, WhatsApp, Gmail,
+Amazon, e-commerce patterns - <strong>Forbidden actions</strong>: Never
+re-open sites, never click navigation links when searching -
+<strong>Completion criteria</strong>: URL-based verification for each
+task type</p>
+<h3 id="conversation-history-pruning">11.3 Conversation History
+Pruning</h3>
+<p><code>pruneHistory()</code> keeps only the <strong>last 6 tool
+exchange rounds</strong> to manage token costs: - User/assistant text
+messages are always kept - Only the most recent tool call/response pairs
+are retained</p>
+<h3 id="document-intelligence-llm-strategy">11.4 Document Intelligence
+LLM Strategy</h3>
+<pre><code>Question → FAISS top-15 chunks → prompt template
+
+Primary: Gemini 2.5 Flash (3 API keys rotated)
+    ↓ on failure
+Fallback: OpenAI gpt-5-nano
+    ↓ on failure
+Return: &quot;Unable to process this query&quot;
+
+If interactive (URLs/APIs detected):
+    → LangGraph Agent with OpenAI GPT-4</code></pre>
+<hr />
+<h2 id="project-file-structure">12. Project File Structure</h2>
+<pre><code>EDITH - Final yr project/
+│
+├── EDITH-main/EDITH-main/
+│   └── extension/                          ★ CORE AGENT
+│       ├── wxt.config.ts                   # Manifest V3 config + permissions
+│       ├── package.json                    # Dependencies (OpenAI, React, WXT, TS)
+│       ├── tsconfig.json                   # TypeScript configuration
+│       ├── tailwind.config.js              # TailwindCSS theme
+│       ├── postcss.config.js               # PostCSS plugins
+│       ├── entrypoints/
+│       │   ├── background/
+│       │   │   └── index.ts                # ★ Service worker (715 lines)
+│       │   │                               #   Message router, agent loop,
+│       │   │                               #   research runner, alarm handler
+│       │   ├── sidepanel/
+│       │   │   ├── main.tsx                # React mount
+│       │   │   ├── App.tsx                 # Chat UI + settings
+│       │   │   └── index.html
+│       │   └── newtab/
+│       │       ├── main.tsx                # New tab page
+│       │       └── index.html
+│       ├── lib/
+│       │   ├── agent.ts                    # ★ System prompt (140 lines) +
+│       │   │                               #   BROWSER_TOOLS definitions +
+│       │   │                               #   formatSnapshot() + pruneHistory()
+│       │   ├── automation.ts               # ★ CDP automation (1186 lines)
+│       │   │                               #   Snapshot JS, click, type, scroll,
+│       │   │                               #   hover, select, multi-tab attach
+│       │   ├── research.ts                 # ★ Research orchestrator (523 lines)
+│       │   │                               #   decomposeTask, runSubTask,
+│       │   │                               #   aggregateResults
+│       │   ├── llm.ts                      # OpenAI SDK wrapper (99 lines)
+│       │   ├── storage.ts                  # chrome.storage CRUD (134 lines)
+│       │   └── tab_manager.ts              # Multi-tab lifecycle (~100 lines)
+│       └── assets/
+│           └── global.css
+│
+└── Document Intelligence/
+    └── doc_intel/                           ★ DOCUMENT Q&amp;A MODULE
+        ├── app/
+        │   ├── main.py                     # FastAPI app + auth middleware
+        │   ├── document_parser.py          # PDF/DOCX/PPTX/XLSX/Image parsers
+        │   ├── embeddings.py               # e5-large-v2 + FAISS builder
+        │   ├── retrieval.py                # RAG pipeline + caching + linked docs
+        │   ├── intractive_agent.py         # LangGraph ReAct agent
+        │   ├── prompt_template.py          # Domain-specific prompt template
+        │   └── utils.py                    # Utilities
+        ├── pdf_cache/                      # Persistent embedding cache
+        ├── requirements.txt                # 23 dependencies
+        ├── Dockerfile                      # Docker support
+        └── .env                            # API keys (Gemini ×3, OpenAI, Groq)</code></pre>
+<hr />
+<h2 id="security-architecture">13. Security Architecture</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Mechanism</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Extension Permissions</strong></td>
+<td>Manifest V3</td>
+<td>Scoped: <code>debugger</code>, <code>sidePanel</code>,
+<code>storage</code>, <code>tabs</code>, <code>scripting</code>,
+<code>alarms</code></td>
+</tr>
+<tr class="even">
+<td><strong>API Key Storage</strong></td>
+<td><code>chrome.storage.local</code></td>
+<td>User’s OpenAI key stored locally, never transmitted to any server
+except OpenAI</td>
+</tr>
+<tr class="odd">
+<td><strong>LLM Calls</strong></td>
+<td>Direct browser → OpenAI</td>
+<td>No intermediary — extension calls API directly with
+<code>dangerouslyAllowBrowser: true</code></td>
+</tr>
+<tr class="even">
+<td><strong>Agent Safety</strong></td>
+<td>Abort flag</td>
+<td>User can immediately stop any running agent via
+<code>AGENT_STOP</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Snapshot Loop Prevention</strong></td>
+<td>Counter + warning</td>
+<td>Detects 3+ consecutive snapshots without action</td>
+</tr>
+<tr class="even">
+<td><strong>New Tab Tracking</strong></td>
+<td><code>activeTabId</code> switch</td>
+<td>Automatically follows cross-tab navigation</td>
+</tr>
+<tr class="odd">
+<td><strong>CDP Cleanup</strong></td>
+<td><code>finally</code> block</td>
+<td><code>detachDebugger()</code> always called, even on errors</td>
+</tr>
+<tr class="even">
+<td><strong>Doc Intel Auth</strong></td>
+<td>Bearer token</td>
+<td>Static token validation on all API requests</td>
+</tr>
+<tr class="odd">
+<td><strong>Gemini Key Rotation</strong></td>
+<td><code>itertools.cycle()</code></td>
+<td>3 keys rotated to avoid rate limits</td>
+</tr>
+<tr class="even">
+<td><strong>Conversation Limits</strong></td>
+<td>100 max conversations</td>
+<td>Prevents unbounded storage growth</td>
+</tr>
+<tr class="odd">
+<td><strong>History Pruning</strong></td>
+<td>Last 6 tool rounds</td>
+<td>Prevents token overflow on long agent runs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>Report generated from exhaustive source code analysis of
+every file in the extension and Document Intelligence modules.</strong>
+All architecture diagrams and data flows are derived directly from the
+actual implementation.</p>
+</blockquote>
+</body>
+</html>

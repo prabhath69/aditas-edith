@@ -12,6 +12,10 @@ import {
     takeScreenshot,
     detachDebugger,
     detachAllDebuggers,
+    selectOption,
+    hoverElement,
+    setValue,
+    waitForNetworkIdle,
 } from '../../lib/automation';
 import { SYSTEM_PROMPT, formatSnapshot, BROWSER_TOOLS, pruneHistory, TASK_COMPLETE_SIGNAL } from '../../lib/agent';
 import { decomposeTask, runSubTask, aggregateResults } from '../../lib/research';
@@ -289,8 +293,16 @@ async function runAgent(message: { prompt: string; conversationId?: string | nul
                                 toolResult = 'Error: No snapshot. Call take_snapshot first.';
                             } else {
                                 toolResult = await clickElement(args.uid as number, lastSnapshot, activeTabId);
-                                await sleep(800);
-                                // Auto-snapshot after click so LLM immediately sees the new page
+                                // Detect new tab opened by click (target=_blank links)
+                                if (toolResult.includes('__NEW_TAB__:')) {
+                                    const match = toolResult.match(/__NEW_TAB__:(\d+)/);
+                                    if (match) {
+                                        activeTabId = parseInt(match[1], 10);
+                                        progress(`🔀 Switched to new tab ${activeTabId}`);
+                                    }
+                                }
+                                await sleep(1200); // Wait for page load/Gmail compose popup
+                                // Auto-snapshot after click
                                 try {
                                     lastSnapshot = await takeSnapshot(activeTabId);
                                     const snapText = formatSnapshot(lastSnapshot);
@@ -357,6 +369,91 @@ async function runAgent(message: { prompt: string; conversationId?: string | nul
                         case 'screenshot': {
                             await takeScreenshot(activeTabId);
                             toolResult = 'Screenshot taken.';
+                            break;
+                        }
+                        // ─── BrowserOS-level tools ───
+                        case 'select_option': {
+                            consecutiveSnapshots = 0;
+                            if (!lastSnapshot) {
+                                toolResult = 'Error: No snapshot. Call take_snapshot first.';
+                            } else {
+                                toolResult = await selectOption(
+                                    args.uid as number,
+                                    args.value as string,
+                                    lastSnapshot,
+                                    activeTabId,
+                                );
+                                // Wait for AJAX update after select change
+                                await waitForNetworkIdle(activeTabId, 3000).catch(() => { });
+                                await sleep(500);
+                                try {
+                                    lastSnapshot = await takeSnapshot(activeTabId);
+                                    const snapText = formatSnapshot(lastSnapshot);
+                                    toolResult += `\n\n--- Page after select ---\n${snapText}`;
+                                    progress(`📸 Auto-snapshot: ${lastSnapshot.title} (${lastSnapshot.elements.length} elements)`);
+                                } catch {
+                                    lastSnapshot = null;
+                                }
+                            }
+                            break;
+                        }
+                        case 'hover': {
+                            consecutiveSnapshots = 0;
+                            if (!lastSnapshot) {
+                                toolResult = 'Error: No snapshot. Call take_snapshot first.';
+                            } else {
+                                toolResult = await hoverElement(
+                                    args.uid as number,
+                                    lastSnapshot,
+                                    activeTabId,
+                                );
+                                // Auto-snapshot to show revealed menu
+                                try {
+                                    lastSnapshot = await takeSnapshot(activeTabId);
+                                    const snapText = formatSnapshot(lastSnapshot);
+                                    toolResult += `\n\n--- Page after hover ---\n${snapText}`;
+                                    progress(`📸 Auto-snapshot: ${lastSnapshot.title} (${lastSnapshot.elements.length} elements)`);
+                                } catch {
+                                    lastSnapshot = null;
+                                }
+                            }
+                            break;
+                        }
+                        case 'set_value': {
+                            consecutiveSnapshots = 0;
+                            if (!lastSnapshot) {
+                                toolResult = 'Error: No snapshot. Call take_snapshot first.';
+                            } else {
+                                toolResult = await setValue(
+                                    args.uid as number,
+                                    args.value as string,
+                                    lastSnapshot,
+                                    activeTabId,
+                                );
+                                await sleep(300);
+                                try {
+                                    lastSnapshot = await takeSnapshot(activeTabId);
+                                    const snapText = formatSnapshot(lastSnapshot);
+                                    toolResult += `\n\n--- Page after set_value ---\n${snapText}`;
+                                } catch {
+                                    lastSnapshot = null;
+                                }
+                            }
+                            break;
+                        }
+                        case 'wait_for_page_update': {
+                            consecutiveSnapshots = 0;
+                            toolResult = await waitForNetworkIdle(activeTabId, 5000);
+                            await sleep(500);
+                            // Auto-snapshot after wait
+                            try {
+                                lastSnapshot = await takeSnapshot(activeTabId);
+                                const snapText = formatSnapshot(lastSnapshot);
+                                toolResult += `\n\n--- Page after update ---\n${snapText}`;
+                                progress(`📸 Auto-snapshot: ${lastSnapshot.title} (${lastSnapshot.elements.length} elements)`);
+                            } catch {
+                                lastSnapshot = null;
+                            }
                             break;
                         }
                         default:

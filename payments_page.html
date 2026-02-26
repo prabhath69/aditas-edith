@@ -1,0 +1,870 @@
+﻿
+<!DOCTYPE html>
+<html xmlns="https://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>GMRIT | Online Payments </title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!--Favicon-->
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+<link rel="icon" href="images/favicon.ico" type="image/x-icon">
+<!-- Responsive -->
+<!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script><![endif]-->
+</head>
+<body>
+<noscript><span style="background-color:#00f;"><b style="color: #fff;">This Website needs Javascript please enable it for your browser.</b></span>
+</noscript>
+<div class="page-wrapper">
+    <!-- Main Header-->
+    <header class="main-header style-two">
+                <div class="header-upper">
+            <div class="auto-container">
+                <div class="clearfix">
+                    
+                    <div class="pull-left logo-outer">
+                        <div class="logo"><a href="/"><img src="images/gmr_logo.jpg" alt="logo"></a></div>
+                    </div>
+                    
+                    <div class="pull-right upper-right clearfix">
+                       <h2>GMR Institute of Technology</h2>
+ 						<p>An Autonomous Institute Affiliated to JNTU-GV, Vizianagaram</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End Header Upper-->
+        <!--Header Lower-->
+        <div class="header-lower">
+            <div class="auto-container">
+                <div class="nav-outer clearfix">
+                    <!-- Main Menu -->
+                    <nav class="main-menu">
+                        <div class="navbar-header">
+                            <!-- Toggle Button -->      
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        
+                        <div class="navbar-collapse collapse clearfix">
+                            <ul class="navigation clearfix">
+                                <li><a href="/payments/">Online Payment Form</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!--End Header Lower-->
+    </header>
+    <!--End Main Header -->
+    
+    <!-- About Us -->
+    <section class="about-us" style="min-height:400px">
+        <div class="auto-container about-company">
+          <div class="row clearfix">
+            <div class="info-tabs tabs-box">
+              <ul class="tab-buttons">
+                  <li data-tab="#info-tab-1" class="tab-btn active-btn">Student Fee Payment</li>
+                  <li data-tab="#info-tab-2" class="tab-btn ">Staff Payment</li>
+                  <li data-tab="#info-tab-3" class="tab-btn ">Guest Payment</li>
+              </ul>
+              <div class="tabs-content">
+                <!--Tab / Active Tab-->
+                <div class="tab active-tab" id="info-tab-1">
+                  <div class="row clearfix no-gutters">
+                    <div class="form-column col-md-4 col-sm-6 col-xs-2">
+                    </div>
+                    <div class="form-column col-md-4 col-sm-6 col-xs-8">
+                        <div class="sec-title text-center" style="margin-bottom: 0">
+                            <h2>Student Fee Payment</h2>
+                        </div>
+                        <form method="POST" action="moveToGateway.php" id="frmupd">
+                          <div class="input-group">
+                            <input type="text" name="jntuno" id="jntuno" class="form-control" autocomplete="off" placeholder="JNTU No."required>
+                            <div class="input-group-btn">
+                              <button class="btn btn-success" onClick="popData()" type="button">
+                                Go
+                              </button>
+                            </div>
+                          </div>
+                          <div id="stdata" style="display:none">
+                            <div class="form-group">
+                              <label for="studentname" class="col-form-label">Student Name (*):</label>
+                              <input type="text" name="studentname" id="studentname" class="form-control" autocomplete="off" required readonly>
+                              <input type="hidden" name="studentid" id="studentid" value="0" autocomplete="off">
+                            </div> 
+                            <div class="form-group">
+                              <label for="studentemail" class="col-form-label">Email (*):</label>
+                              <input type="email" name="studentemail" id="studentemail" class="form-control" autocomplete="off" required readonly>
+                            </div> 
+                            <div class="form-group">
+                              <label for="studentmobile" class="col-form-label">Mobile No (*):</label>
+                              <input type="text" name="studentmobile" id="studentmobile" class="form-control" autocomplete="off" required>
+                            </div>  
+                            <div class="form-group">
+                              <label for="program" class="col-form-label">Program (*)</label>
+                              <input type="text" name="program" id="program" class="form-control" autocomplete="off" required>.
+                              <input type="hidden" name="programid" id="programid" autocomplete="off">
+                              <input type="hidden" name="jvdstudent" id="jvdstudent" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                              <label for="branch" class="col-form-label">Branch (*)</label>
+                              <input type="text" name="branch" id="branch" class="form-control" autocomplete="off" required>
+                              <input type="hidden" name="branchid" id="branchid" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                              <label for="feetypeid" class="col-form-label">Type of Fee (*)</label>
+                              <select name="feetypeid" id="feetypeid" class="form-control" onChange="getOthTypes()" required>
+                                <option value="">--</option>
+                                                                  <option value="1">College Fee</option>
+                                                                  <option value="2">Hostel Fee</option>
+                                                                  <option value="3">Bus Fee</option>
+                                                                  <option value="4">Exam Fee</option>
+                                                                  <option value="5">Others</option>
+                                                              </select>
+                              <select name="othfeetypeid" id="othfeetypeid" class="form-control" onChange="getDues()" style="display:none">
+                                <option value="">---</option>
+                              </select>
+                            </div>
+                            <div class="form-group">
+                              <label for="yearid" class="col-form-label">Year (*)</label>
+                              <select name="yearid" id="yearid" class="form-control" onChange="getDues()" required>
+                                <option value="">--</option>
+                              </select>
+                            </div>
+                            <div class="form-group" id="semblk" style="display:none">
+                              <label for="semmesterid" class="col-form-label">Semester</label>
+                              <select name="semester" id="semester" class="form-control">
+                                <option value="">--</option>
+                                                                  <option value="I">I</option>
+                                                                  <option value="II">II</option>
+                                                                  <option value="III">III</option>
+                                                                  <option value="IV">IV</option>
+                                                                  <option value="V">V</option>
+                                                                  <option value="VI">VI</option>
+                                                                  <option value="VII">VII</option>
+                                                                  <option value="VIII">VIII</option>
+                                                              </select>
+                            </div>
+                            <div class="form-group" id="due_blk" style="display:none">
+                              <label for="amount" class="col-form-label">Due Amount</label>
+                              <input type="number" name="subamount" id="subamount" class="form-control" autocomplete="off" readonly>
+                            </div>
+                            <div class="form-group">
+                              <label for="amount" class="col-form-label">Enter your payment amount (*)</label>
+                              <input type="number" name="amount" id="amount" class="form-control"  required autocomplete="off">
+                              <input type="hidden" name="dueid" id="dueid" autocomplete="off" value="0" required>
+                              <input type="hidden" name="fee_breakups" id="fee_breakups" autocomplete="off">
+                              <input type="hidden" name="relatedto" id="relatedto" value="Student" autocomplete="off">
+                              <input type="hidden" name="quarter" id="quarter" value="" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                              <label for="remarks" class="col-form-label">Remarks (*)</label>
+                              <textarea name="remarks" id="remarks" class="form-control" autocomplete="off" required></textarea>
+                            </div>
+                            <div class="row clearfix">
+                              <div id="feebreaks"></div>
+                              <div style="color:#f00;font-weight:bold;text-align: center" id="errmsg"></div>
+                            </div> 
+                            <div class="row clearfix">            
+                                <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                  <button type="button" class="theme-btn btn-style-two" onClick="clearFields()">Clear</button>
+                                </div>
+                                <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                  <button id="btnpro" type="button" onClick="validateForm()" class="theme-btn btn-style-one">Proceed</button>
+                                </div>
+                            </div>
+                          </div>
+                        </form>
+                    </div>
+                    <div class="form-column col-md-4 col-sm-6 col-xs-2">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab" id="info-tab-2"> 
+                  <div class="row clearfix no-gutters">                 
+                    <div class="form-column col-md-4 col-sm-4 col-xs-4">
+                    </div>
+                    <div class="form-column col-md-4 col-sm-4 col-xs-4">
+                        <div class="sec-title text-center" style="margin-bottom: 0">
+                            <h2>Staff Payment</h2>
+                        </div>
+                        <form method="POST" action="moveToGateway.php" id="frmupd1">
+                          <div class="form-group">
+                            <label for="jntuno" class="col-form-label">Staff ID No(*):</label>
+                            <input type="text" name="jntuno" id="facno" class="form-control" onkeyup="popFacultyData()" autocomplete="off" required>
+                          </div>
+                          <div id="facdata" style="display:none">
+                            <div class="form-group">
+                              <label for="studentname" class="col-form-label">Faculty Name (*):</label>
+                              <input type="text" name="studentname" id="facultyname" class="form-control" autocomplete="off" required readonly>
+                              <input type="hidden" name="studentid" id="facultyid" value="0">
+                            </div> 
+                            <div class="form-group">
+                              <label for="studentemail" class="col-form-label">Email (*):</label>
+                              <input type="email" name="studentemail" id="facultyemail" class="form-control" autocomplete="off" required>
+                            </div> 
+                            <div class="form-group">
+                              <label for="studentmobile" class="col-form-label">Mobile No (*):</label>
+                              <input type="number" name="studentmobile" id="facultymobile" class="form-control" autocomplete="off" required>
+                            </div>  
+                            <div class="form-group">
+                              <label for="amount" class="col-form-label">Amount (*)</label>
+                              <input type="number" name="amount" id="facamount" class="form-control"  autocomplete="off" required>
+                              <input type="hidden" name="dueid" id="facdueid" value="0">
+                              <input type="hidden" name="relatedto" id="facrelatedto" value="Faculty">
+                            </div>
+                            <div class="form-group">
+                              <label for="quarter" class="col-form-label">Nature of Payment (*)</label>
+                              <select name="quarter" id="facquarter" class="form-control" required>
+                                  <option value="">--</option>
+                                  <option value="Settlememnt of Advance">Settlememnt of Advance</option>
+                                  <option value="Original Certificates Deposit">Original Certificates Deposit</option>
+                                  <option value="Payment of Notice Period">Payment of Notice Period</option>
+                                  <option value="Others">Others</option>
+                              </select>
+                            </div>
+                            <div class="form-group">
+                              <label for="remarks" class="col-form-label">Remarks</label>
+                              <textarea name="remarks" id="facremarks" class="form-control" autocomplete="off"></textarea>
+                            </div>
+                            <div class="row clearfix">                              
+                              <div style="color:#f00;font-weight:bold;text-align: center" id="errmsg1"></div>
+                            </div> 
+                            <div class="row clearfix">            
+                                <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                  <button type="button" class="theme-btn btn-style-two" onClick="clearFacFields()">Clear</button>
+                                </div>
+                                <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                  <button id="btnfpro" type="button" onClick="validateFacForm()" class="theme-btn btn-style-one">Proceed</button>
+                                </div>
+                            </div>
+                          </div>
+                        </form>
+                    </div>
+                    <div class="form-column col-md-4 col-sm-4 col-xs-4">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab" id="info-tab-3">
+                  <div class="row clearfix no-gutters">
+                    <div class="form-column col-md-4 col-sm-4 col-xs-4">
+                    </div>
+                    <div class="form-column col-md-4 col-sm-4 col-xs-4">
+                        <div class="sec-title text-center" style="margin-bottom: 0">
+                            <h2>Guest Payment</h2>
+                        </div>
+                        <form method="POST" action="moveToGateway.php" id="frmupd2">
+                          <div id="gusdata">
+                            <div class="form-group">
+                              <label for="studentname" class="col-form-label">Guest Name (*):</label>
+                              <input type="text" name="studentname" id="guestname" class="form-control" autocomplete="off" required>
+                              <input type="hidden" name="studentid" id="gusid" value="0">
+                            </div> 
+                            <div class="form-group">
+                              <label for="studentemail" class="col-form-label">Email (*):</label>
+                              <input type="email" name="studentemail" id="guestemail" class="form-control" autocomplete="off" required>
+                            </div> 
+                            <div class="form-group">
+                              <label for="studentmobile" class="col-form-label">Mobile No (*):</label>
+                              <input type="number" name="studentmobile" id="guestmobile" class="form-control" autocomplete="off" required>
+                            </div>  
+                            <div class="form-group">
+                              <label for="amount" class="col-form-label">Amount (*)</label>
+                              <input type="number" name="amount" id="gusamount" class="form-control" autocomplete="off" required>
+                              <input type="hidden" name="dueid" id="gusdueid" value="0">
+                              <input type="hidden" name="jntuno" id="gusno" value="0">
+                              <input type="hidden" name="relatedto" id="gusrelatedto" value="Guest">
+                            </div>
+                            <div class="form-group">
+                              <label for="remarks" class="col-form-label">Reason</label>
+                              <textarea name="remarks" id="gusremarks" class="form-control" autocomplete="off" required></textarea>
+                            </div>
+                            <!-- <div class="row clearfix"> 
+                              <div class="g-recaptcha" data-sitekey=""></div>
+                            </div> -->
+                            <div class="row clearfix">                              
+                              <div style="color:#f00;font-weight:bold;text-align: center" id="errmsg2"></div>
+                            </div> 
+                            <div class="row clearfix">            
+                                <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                  <button type="button" class="theme-btn btn-style-two" onClick="clearGusFields()">Clear</button>
+                                </div>
+                                <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                  <button id="btngpro" type="button" onClick="validateGusForm()" class="theme-btn btn-style-one">Proceed</button>
+                                </div>
+                            </div>
+                          </div>
+                        </form>
+                    </div>
+                    <div class="form-column col-md-4 col-sm-4 col-xs-4">
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+    <!-- End About Us -->
+
+    
+    <!-- Main Footer -->
+    <footer class="main-footer padding-top">
+                <!--Footer Bottom-->
+         <div class="footer-bottom">
+            <div class="auto-container clearfix">
+                <div class="row">
+                    <div class="col-md-2 col-sm-2 col-xs-12 text-right">
+                        <a href="privacy-policy.php">Privacy Policy</a>
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-12 text-right">
+                        <a href="terms-conditions.php">Terms & Conditions</a>
+                    </div>
+                    <div class="col-md-8 col-sm-8 col-xs-12">
+                        <div class="copyright-text">GMR Institute of Technology. All Rights Reserved.</div>                        
+                    </div>
+                    
+                </div><!-- /.row -->
+            </div>
+        </div>    </footer>
+    <!-- End Main Footer -->
+</div>    
+<!--End pagewrapper-->
+</body>
+<!-- Stylesheets -->
+<link rel="stylesheet" type="text/css" href="css/reset.css">
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+<link href="css/responsive.css" rel="stylesheet">
+<link href="icons/style.css" rel="stylesheet">
+<!-- google fonts -->
+<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900" rel="stylesheet"> 
+
+<script src="js/jquery.js"></script> 
+<script src="js/bootstrap.min.js"></script><!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
+<script>
+/*Student data related functions */
+      function popData() {
+        $('#errmsg').html('');
+        $('#stdata').hide();
+        $('#quarter').val('');
+        $('#btnpro').prop('disabled', false);
+        var jntuno = $('#jntuno').val();        
+        $("#studentname").val('');
+        $("#studentemail").val('');
+        $("#studentmobile").val('');
+        $("#branchid").val('');
+        $("#programid").val('');
+        $("#branch").val('');
+        $("#program").val('');
+        $('#studentid').val('');
+        $('#dueid').val('');
+        $('#amount').val('');
+        $('#semester').val('');
+        $('#feetypeid').val('');
+        $('#othfeetypeid').empty();
+        $('#othfeetypeid').hide();
+        $('#othfeetypeid').append('<option value="">----</option>');
+        $('#yearid').empty();
+        $('#yearid').append('<option value="">----</option>');
+        if(jntuno!=='') {
+          var params = {jntuno: jntuno, act: 'Studentdets'};
+          $.ajax({
+            type: "POST",
+            url: "ajx/getdets.php",
+            data: params,
+            dataType: 'JSON',
+            success: function(respdata) {
+              if(respdata.status==1) {                
+                var userdata = respdata.data;
+                $("#studentname").val(userdata.student_name);
+                $("#studentemail").val(userdata.student_email);
+                $("#studentmobile").val(userdata.student_mobile);
+                $("#branchid").val(userdata.student_branchid);
+                $("#programid").val(userdata.student_programid);
+                $('#studentid').val(userdata.student_id);
+                $("#branch").val(userdata.branch_name);
+                $("#program").val(userdata.program_name);
+                $('#stdata').show();
+                $('#jvdstudent').val(userdata.jvd_student);
+              } 
+            }, error: function(jqXHR, textStatus, errorThrown) {
+                $('#errmsg').html( "An error occured: " + jqXHR.status + " " + jqXHR.statusText);
+            }
+          });
+        }
+      }
+
+    function getOthTypes() {
+      fillYears();
+      $('#errmsg').html('');
+      var typeid = $('#feetypeid').val();
+
+      $('#othfeetypeid').empty();
+      $('#othfeetypeid').hide();
+      $('#othfeetypeid').append('<option value="">----</option>');
+      if(typeid!='') {
+        var params = {usid: typeid, act: 'Otherfeetypes'};
+        $.ajax({
+          type: "POST",
+          url: "ajx/getdets.php",
+          data: params,
+          dataType: 'JSON',
+          success: function(respdata) {
+            //console.log(JSON.stringify(respdata));
+            var req = respdata.req;
+            if(req.due_required=='Yes') {
+              $('#subamount').val('');
+              $('#due_blk').hide(); 
+              $('#semester').attr("readonly", true);
+              $('#semblk').hide();
+            } else {
+              $('#subamount').val(''); 
+              $('#due_blk').hide();
+              $('#semester').attr("readonly", false);
+              $('#semblk').show(); 
+            }
+            if(respdata.status==1) {
+              var data = respdata.data;
+              data.forEach(function(item){
+                  $('#othfeetypeid').append('<option value="'+item.feetype_id+'">'+item.feetype+'</option>');
+              });
+              $('#othfeetypeid').show();
+            }
+          }, error: function(jqXHR, textStatus, errorThrown) {
+              $('#errmsg').html( "An error occured: " + jqXHR.status + " " + jqXHR.statusText);
+          }
+        });
+        fillFeeBreakUps();
+      }
+    }
+
+    function fillFeeBreakUps() {
+    	var typeid = $('#feetypeid').val();
+    	$('#feebreaks').html('');
+    	$('#fee_breakups').val('');
+    	var feebreaks = '';
+    	if(typeid!='') {
+	        var params = {usid: typeid, act: 'Feebreakups'};
+	        $.ajax({
+	          type: "POST",
+	          url: "ajx/getdets.php",
+	          data: params,
+	          dataType: 'JSON',
+	          success: function(respdata) {
+	            //console.log(JSON.stringify(respdata));
+	            if(respdata.status==1) {
+	            	feebreaks += '<div classs="form-group">';
+	            	feebreaks += '<label class="col-form-label">Select Break Up (*)</label><br>';
+					var data = respdata.data;
+					i=1;
+					data.forEach(function(item){
+						feebreaks += '<input type="checkbox" id="feebreak'+i+'" value="'+item.feebreakup+'" onClick="fillBreaks()"><span>&nbsp;'+item.feebreakup+'</span><br>';
+						i++;
+					});
+					feebreaks += '<input type="hidden" id="totbreaks" value="'+i+'">';
+					feebreaks += '</div>';
+					$('#feebreaks').html(feebreaks);
+	            }
+	          }, error: function(jqXHR, textStatus, errorThrown) {
+	              $('#errmsg').html( "An error occured: " + jqXHR.status + " " + jqXHR.statusText);
+	          }
+	        });
+	      }
+    }
+
+    function fillBreaks() {
+    	var totbreaks = $('#totbreaks').val();
+    	$('#fee_breakups').val('');
+    	var breaks = '';
+    	if(totbreaks>1) {
+    		for(i=1; i<totbreaks; i++) {
+    			if($("#feebreak"+i).is(':checked')) {
+    				if(breaks=='') {
+    					breaks += $("#feebreak"+i).val();
+    				} else {
+    					breaks += ';' + $("#feebreak"+i).val();
+    				}
+    			}
+    		}
+    		$('#fee_breakups').val(breaks);
+    	}
+    }
+
+    function fillYears() {
+      $('#yearid').empty();
+      $('#yearid').append('<option value="">----</option>');
+      var programid = $('#programid').val();
+      if(programid!='') {
+        var params = {usid: programid, act: 'programyears'};
+        $.ajax({
+          type: "POST",
+          url: "ajx/getdets.php",
+          data: params,
+          dataType: 'JSON',
+          success: function(respdata) {
+            //console.log(JSON.stringify(respdata));
+            if(respdata.status==1) {
+              var data = respdata.data;
+              data.forEach(function(item){
+                  $('#yearid').append('<option value="'+item.year_id+'">'+item.year+'</option>');
+              });
+            } 
+          }, error: function(jqXHR, textStatus, errorThrown) {
+              $('#errmsg').html( "An error occured: " + jqXHR.status + " " + jqXHR.statusText);
+          }
+        });
+      }
+    }
+
+    function getDues() {
+      $('#amount').val('');
+      $('#dueid').val('');
+      $('#amount').show();
+      //$('#btnpro').prop('disabled', true);
+      $('#errmsg').html('');
+      var feetypeid = '';
+      if($('#othfeetypeid').val()!='')
+        feetypeid = $('#othfeetypeid').val();
+      else
+        feetypeid = $('#feetypeid').val();
+      var branchid = $('#branchid').val();
+      var programid = $('#programid').val();
+      var yearid = $('#yearid').val();
+      var semester = $('#semester').val();
+      var jntuno = $('#jntuno').val();
+      var studentid = $('#studentid').val();
+      var yearid = $('#yearid').val();
+      $('#subamount').val('');
+      if(feetypeid!='') {
+        var params = {feetypeid: feetypeid, branchid: branchid, programid: programid, semester: semester, yearid: yearid, quarter: '', jntuno: jntuno, studentid: studentid, act: 'Studentdues'};
+        console.log(JSON.stringify(params));
+        $.ajax({
+          type: "POST",
+          url: "ajx/getdets.php",
+          data: params,
+          dataType: 'JSON',
+          success: function(respdata) {
+            console.log(JSON.stringify(respdata));
+            if(respdata.status==1) {
+              var req = respdata.req;
+              if(req=='Yes') {
+                var data = respdata.data;
+                $('#amount').val(data.due_amount);
+                $('#btnpro').prop('disabled', false);
+                $('#subamount').val(data.due_amount);
+                $('#due_blk').hide(); 
+                $('#dueid').val(data.due_id);
+                $('#semester').attr("readonly", true);
+                $('#semblk').hide();
+              } else {
+                var data = respdata.data;
+                $('#amount').val(data.due_amount);
+                $('#dueid').val('0');
+                $('#subamount').val(data.due_amount);
+                $('#due_blk').hide(); 
+                $('#semester').attr("readonly", false);
+                $('#semblk').show(); 
+                $('#btnpro').prop('disabled', false);
+              }
+            } else {
+              $('#errmsg').html( "");
+              $('#amount').val('');
+              $('#subamount').val('');
+              $('#due_blk').hide(); 
+              $('#dueid').val('0');
+            }
+          }, error: function(jqXHR, textStatus, errorThrown) {
+              $('#errmsg').html( "An error occured: " + jqXHR.status + " " + jqXHR.statusText);
+          }
+        });
+      }
+    }
+
+    function clearFields() {
+        $('#jntuno').val('');
+        $("#studentid").val('');
+        $("#studentname").val('');
+        $("#studentemail").val('');
+        $("#studentmobile").val('');
+        $("#branchid").val('');
+        $("#programid").val('');
+        $("#branch").val('');
+        $("#program").val('');
+        $('#dueid').val('');
+        $('#amount').val('');
+        $('#semester').val('');
+        $('#feetypeid').val('');
+        $('#othfeetypeid').empty();
+        $('#othfeetypeid').hide();
+        $('#othfeetypeid').append('<option value="">----</option>');
+        $('#stdata').hide();
+        $('#quarter').val('');
+        $('#qrtr').hide();
+        $('#errmsg').html('');
+        $('#amount').show();
+        $('#subamount').val('');
+        $('#due_blk').hide();
+        $('#btnpro').prop('disabled', false);
+    }
+
+    function validateForm() {
+      var errmsg = '';
+      var cont = 1;
+      fillBreaks();
+      var jntuno =  $('#jntuno').val();
+      if(jntuno.trim()=='') {
+        cont = 0;
+        errmsg = errmsg + ' Fill JNTU No.,';
+      }
+      var stid = $('#studentid').val();      
+      if(stid.trim()=='' || parseInt(stid.trim())<=0) {
+        cont = 0;
+      }
+      var ftpid = $('#feetypeid').val();      
+      if(ftpid.trim()=='' || parseInt(ftpid.trim())<=0) {
+        cont = 0;
+        errmsg = errmsg + ' Select Fee Type,';
+      } else {
+        if(parseInt(ftpid==5)) {
+          var oftpid = $('#othfeetypeid').val();
+          if(oftpid.trim()=='' || parseInt(oftpid.trim())<=0) {
+            cont = 0;
+            errmsg = errmsg + ' Select Other Fee Type,';
+          }
+        }
+      }
+      var yr = $('#yearid').val();      
+      if(yr.trim()=='' || parseInt(yr.trim())<=0) {
+        cont = 0;
+        errmsg = errmsg + ' Select Year,';
+      }
+      var eml =  $('#studentemail').val();
+      if(eml.trim()=='') {
+        cont = 0;
+        errmsg = errmsg + ' Fill Email,';
+      }
+      var mob =  $('#studentmobile').val();
+      if(mob.trim()=='') {
+        cont = 0;
+        errmsg = errmsg + ' Fill Mobile,';
+      }
+      var amt = $('#amount').val();      
+      if(amt.trim()=='' || parseInt(amt.trim())<=0) {
+        cont = 0;
+        errmsg = errmsg + ' Fill Payment Amount,';
+      }
+
+      var rmk = $('#remarks').val();
+      if(rmk.trim()=='') {
+        cont = 0;
+        errmsg = errmsg + ' Fill Remarks,';
+      }
+      
+      var fbs = $('#feebreaks').html();
+      if(fbs.trim()!='') {
+      	var breakups = $('#fee_breakups').val();
+      	if(breakups.trim()=='') {
+      		cont = 0;
+          errmsg = errmsg + ' Select Fee Break-ups,';
+      	}
+      }
+
+      var dueid = $('#dueid').val();
+      if(dueid.trim()!='' && parseInt(dueid.trim())>0) {
+      	var samt = $('#subamount').val();
+        if(samt.trim()=='' || parseInt(samt.trim())<=0) {
+          errmsg = errmsg + ' Invalid Due Amount,';
+        } /*else {
+        	if(parseInt(amt)<parseInt(samt)) {
+        		cont = 0;
+            errmsg += ' Invalid Payment Amount,';
+        	}
+        }*/
+      }
+
+      if(cont==1) {
+        $('#frmupd').submit();
+      } else {
+        $('#errmsg').html(errmsg + ' and then re-submit');
+      }
+    }
+    (function($) {
+
+      "use strict";
+      //Tabs Box
+      if ($('.tabs-box').length) {
+          $('.tabs-box .tab-buttons .tab-btn').on('click', function(e) {
+              e.preventDefault();
+              var target = $($(this).attr('data-tab'));
+
+              if ($(target).is(':visible')) {
+                  return false;
+              } else {
+                  target.parents('.tabs-box').find('.tab-buttons').find('.tab-btn').removeClass('active-btn');
+                  $(this).addClass('active-btn');
+                  target.parents('.tabs-box').find('.tabs-content').find('.tab').fadeOut(0);
+                  target.parents('.tabs-box').find('.tabs-content').find('.tab').removeClass('active-tab');
+                  $(target).fadeIn(300);
+                  $(target).addClass('active-tab');
+              }
+          });
+      }
+    })(window.jQuery);
+
+/* Faculty data related functions */ 
+    function popFacultyData() {
+        $('#errmsg1').html('');
+        $('#facdata').hide();
+        $('#btnfpro').prop('disabled', false);
+        var facno = $('#facno').val();        
+        $("#facultyname").val('');
+        $("#facultyemail").val('');
+        $("#facultymobile").val('');
+        $('#facultyid').val('');
+        $('#facamount').val('');
+        if(facno!=='') {
+          var params = {facno: facno, act: 'Facultydets'};
+          $.ajax({
+            type: "POST",
+            url: "ajx/getdets.php",
+            data: params,
+            dataType: 'JSON',
+            success: function(respdata) {
+              console.log(JSON.stringify(respdata));
+              if(respdata.status==1) {                
+                var userdata = respdata.data;
+                $("#facultyname").val(userdata.facultyname);
+                $("#facultyemail").val(userdata.facultyemail);
+                $("#facultymobile").val(userdata.facultymobile);
+                $('#facultyid').val(userdata.facultyid);
+                $('#facdata').show();
+              } 
+            }, error: function(jqXHR, textStatus, errorThrown) {
+                $('#errmsg1').html( "An error occured: " + jqXHR.status + " " + jqXHR.statusText);
+            }
+          });
+        }
+    } 
+    function clearFacFields() {
+        $("#facno").val('');
+        $("#facultyid").val('');
+        $("#facultyname").val('');
+        $("#facultyemail").val('');
+        $("#facultymobile").val('');
+        $('#facamount').val('');
+        $('#facquarter').val('');
+        $('#errmsg1').html('');
+        $('#facamount').show();
+        $('#btnfpro').prop('disabled', false);
+    } 
+
+    function validateFacForm() {
+      var cont = 1;
+      var facno =  $('#facno').val();
+      if(facno=='') {
+        cont = 0;
+      }
+      var facid = $('#facultyid').val();      
+      if(facid=='' || parseInt(facid)<=0) {
+        cont = 0;
+      }
+      var eml =  $('#facultyemail').val();
+      if(eml.trim()=='') {
+        cont = 0;
+      }
+      var mob =  $('#facultymobile').val();
+      if(mob.trim()=='') {
+        cont = 0;
+      }
+      var amt = $('#facamount').val();      
+      if(amt=='' || parseInt(amt)<=0) {
+        cont = 0;
+      }
+      var qrt = $('#facquarter').val();
+      if(qrt.trim()=='') {
+        cont = 0;
+      }
+
+      if(cont==1) {
+        $('#frmupd1').submit();
+      } else {
+        $('#errmsg1').html('Fill all * marked details and re-submit');
+      }
+    } 
+
+ /* Guest data related functions */
+ 	function validateGusForm() {
+      var cont = 1;
+      var nam =  $('#guestname').val();
+      if(nam.trim()=='') {
+        cont = 0;
+      }
+
+      var eml =  $('#guestemail').val();
+      if(eml.trim()=='') {
+        cont = 0;
+      }
+      var mob =  $('#guestmobile').val();
+      if(mob.trim()=='') {
+        cont = 0;
+      }
+      var amt = $('#gusamount').val();      
+      if(amt=='' || parseInt(amt)<=0) {
+        cont = 0;
+      }
+      var rmk = $('#gusremarks').val();      
+      if(rmk.trim()=='') {
+        cont = 0;
+      }
+
+      if(cont==1) {
+        $('#frmupd2').submit();
+      } else {
+        $('#errmsg2').html('Fill all * marked details and re-submit');
+      }
+    } 
+
+    function clearGusFields() {
+        $("#guestname").val('');
+        $("#guestemail").val('');
+        $("#guestmobile").val('');
+        $('#gusamount').val('');
+        $('#errmsg2').html('');
+        $('#gusamount').show();
+    } 
+</script>
+<style>
+  .srchbtn{
+    float: left;
+    width: 10%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none; /* Prevent double borders */
+    cursor: pointer;
+  }
+
+  .srchbtn:hover {
+    background: #0b7dda;
+  }
+
+  /* Clear floats */
+  .srchbtn::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+</style>
+</html>
+

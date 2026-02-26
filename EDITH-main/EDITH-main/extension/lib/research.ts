@@ -15,6 +15,10 @@ import {
     navigateTo,
     openBrowser,
     detachDebugger,
+    selectOption,
+    hoverElement,
+    setValue,
+    waitForNetworkIdle,
 } from './automation';
 import { formatSnapshot, pruneHistory, BROWSER_TOOLS } from './agent';
 
@@ -363,6 +367,81 @@ export async function runSubTask(
                                 tabId,
                             );
                             onProgress('Scrolling...');
+                            break;
+                        }
+                        // ─── BrowserOS-level tools ───
+                        case 'select_option': {
+                            if (!lastSnapshot) {
+                                toolResult = 'Error: No snapshot. Call take_snapshot first.';
+                            } else {
+                                toolResult = await selectOption(
+                                    args.uid as number,
+                                    args.value as string,
+                                    lastSnapshot,
+                                    tabId,
+                                );
+                                await waitForNetworkIdle(tabId, 3000).catch(() => { });
+                                await new Promise((r) => setTimeout(r, 500));
+                                try {
+                                    lastSnapshot = await takeSnapshot(tabId);
+                                    toolResult += '\n\n--- Page after select ---\n' + formatSnapshot(lastSnapshot);
+                                } catch {
+                                    lastSnapshot = null;
+                                }
+                            }
+                            onProgress('Selecting option...');
+                            break;
+                        }
+                        case 'hover': {
+                            if (!lastSnapshot) {
+                                toolResult = 'Error: No snapshot. Call take_snapshot first.';
+                            } else {
+                                toolResult = await hoverElement(
+                                    args.uid as number,
+                                    lastSnapshot,
+                                    tabId,
+                                );
+                                try {
+                                    lastSnapshot = await takeSnapshot(tabId);
+                                    toolResult += '\n\n--- Page after hover ---\n' + formatSnapshot(lastSnapshot);
+                                } catch {
+                                    lastSnapshot = null;
+                                }
+                            }
+                            onProgress('Hovering...');
+                            break;
+                        }
+                        case 'set_value': {
+                            if (!lastSnapshot) {
+                                toolResult = 'Error: No snapshot. Call take_snapshot first.';
+                            } else {
+                                toolResult = await setValue(
+                                    args.uid as number,
+                                    args.value as string,
+                                    lastSnapshot,
+                                    tabId,
+                                );
+                                await new Promise((r) => setTimeout(r, 300));
+                                try {
+                                    lastSnapshot = await takeSnapshot(tabId);
+                                    toolResult += '\n\n--- Page after set_value ---\n' + formatSnapshot(lastSnapshot);
+                                } catch {
+                                    lastSnapshot = null;
+                                }
+                            }
+                            onProgress('Setting value...');
+                            break;
+                        }
+                        case 'wait_for_page_update': {
+                            toolResult = await waitForNetworkIdle(tabId, 5000);
+                            await new Promise((r) => setTimeout(r, 500));
+                            try {
+                                lastSnapshot = await takeSnapshot(tabId);
+                                toolResult += '\n\n--- Page after update ---\n' + formatSnapshot(lastSnapshot);
+                            } catch {
+                                lastSnapshot = null;
+                            }
+                            onProgress('Waiting for update...');
                             break;
                         }
                         default:
