@@ -21,6 +21,14 @@ import { SYSTEM_PROMPT, formatSnapshot, BROWSER_TOOLS, pruneHistory, TASK_COMPLE
 import { decomposeTask, runSubTask, aggregateResults } from '../../lib/research';
 import type { SubTaskResult, ResearchPlan } from '../../lib/research';
 import { tabManager } from '../../lib/tab_manager';
+import {
+    isLeadGenTask,
+    generateSearchQueries,
+    buildExtractionPrompt,
+    buildSheetEntryPrompt,
+    parseExtractedLeads,
+} from '../../lib/lead_intelligence';
+import type { LeadGenPlan } from '../../lib/lead_intelligence';
 
 export default defineBackground(() => {
     // Open sidepanel when toolbar icon is clicked
@@ -42,7 +50,11 @@ export default defineBackground(() => {
         if (message.type === 'AGENT_RUN') {
             // Agent: long-running — ack immediately, run in background, push events
             sendResponse({ ok: true, conversationId: message.conversationId ?? null });
-            runAgent(message).catch((err) => {
+
+            // Auto-detect lead generation tasks and route accordingly
+            const useLeadGen = isLeadGenTask(message.prompt || '');
+            const runner = useLeadGen ? runLeadGen(message) : runAgent(message);
+            runner.catch((err) => {
                 broadcastEvent({ type: 'agent_error', error: String(err), conversationId: message.conversationId });
             });
             return false; // Channel already closed via sendResponse
@@ -175,7 +187,7 @@ async function runAgent(message: { prompt: string; conversationId?: string | nul
     let lastSnapshot: Awaited<ReturnType<typeof takeSnapshot>> | null = null;
     let activeTabId: number | undefined;
     let stepCount = 0;
-    const MAX_STEPS = 30;
+    const MAX_STEPS = 50;
     let consecutiveSnapshots = 0; // Track snapshot loop
 
     function progress(text: string) {
@@ -709,6 +721,385 @@ async function runResearch(
 
     } finally {
         // Clean up: detach all debuggers but keep tabs open for user to review
+        await tabManager.detachAll();
+    }
+}
+
+// ─── Lead Generation Orchestrator ───────────────────────────────────────────
+
+/** Entry point for lead generation tasks — auto-detected from AGENT_RUN */
+async function runLeadGen(message: { prompt: string; conversationId?: string | null }) {
+    const settings = await getSettings();
+    agentAbortFlag = false;
+
+    if (!settings.apiKey) {
+        broadcastEvent({
+            type: 'agent_error',
+            error: 'No API key set. Open Settings ⚙️ and add your OpenAI API key.',
+            conversationId: message.conversationId,
+        });
+        return;
+    }
+
+    const conversations = await getConversations();
+    let conv = conversations.find((c) => c.id === message.conversationId);
+
+    if (!conv) {
+        conv = {
+            id: crypto.randomUUID(),
+            title: `🔍 ${message.prompt.slice(0, 55)}`,
+            messages: [],
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        };
+    }
+
+    const userMsg: Message = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: message.prompt,
+        timestamp: Date.now(),
+    };
+    conv.messages.push(userMsg);
+
+    function progress(text: string) {
+        broadcastEvent({ type: 'agent_progress', text, conversationId: conv!.id });
+    }
+
+    try {
+        // ── Phase 1: Generate targeted search queries ──
+        progress('🧠 Analyzing task and generating targeted search queries...');
+
+        const plan = await generateSearchQueries(settings, message.prompt);
+
+        if (!plan.searchQueries || plan.searchQueries.length === 0) {
+            // Fallback to regular agent if no queries generated
+            progress('⚠️ Could not generate search queries. Falling back to standard agent...');
+            return runAgent(message);
+        }
+
+        const queryList = plan.searchQueries
+            .map((q, i) => `${i + 1}. [${q.platform}] ${q.query}`)
+            .join('\n');
+
+        progress(`📋 Generated ${plan.searchQueries.length} targeted search queries:\n${queryList}`);
+
+        conv.messages.push({
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: `🔍 Lead generation mode activated!\n\n**Strategy:** ${plan.reasoning}\n\n**Search queries:**\n${queryList}\n\n🚀 Starting searches...`,
+            timestamp: Date.now(),
+        });
+        conv.updatedAt = Date.now();
+        await saveConversation(conv);
+
+        // ── Phase 2: Execute searches and extract leads ──
+        progress('🔄 Executing search queries and extracting leads...');
+
+        const abortSignal = { aborted: false };
+        const allExtractedData: string[] = [];
+
+        // Open search tabs (limit to 3 at a time to avoid overwhelming)
+        const batchSize = 3;
+        for (let batchStart = 0; batchStart < plan.searchQueries.length; batchStart += batchSize) {
+            if (agentAbortFlag) {
+                abortSignal.aborted = true;
+                break;
+            }
+
+            const batch = plan.searchQueries.slice(batchStart, batchStart + batchSize);
+            progress(`🔍 Running search batch ${Math.floor(batchStart / batchSize) + 1}/${Math.ceil(plan.searchQueries.length / batchSize)}...`);
+
+            const tabIds: number[] = [];
+            for (const sq of batch) {
+                const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(sq.query)}`;
+                const tabId = await tabManager.createTab(searchUrl, `Search: ${sq.query}`);
+                tabIds.push(tabId);
+            }
+
+            // Wait for tabs to load
+            await sleep(3000);
+
+            // Run extraction on each tab in parallel
+            const extractionPromises = batch.map((sq, idx) => {
+                const tabId = tabIds[idx];
+                const extractionGoal = buildExtractionPrompt(sq.platform, plan.extractionFields);
+                return runSubTask(
+                    settings,
+                    {
+                        description: `Search Google for: ${sq.query} — Then extract lead data from the results.`,
+                        url: `https://www.google.com/search?q=${encodeURIComponent(sq.query)}`,
+                        extractionGoal,
+                    },
+                    tabId,
+                    (status) => {
+                        progress(`  🔎 [${sq.platform}] ${status}`);
+                        if (agentAbortFlag) abortSignal.aborted = true;
+                    },
+                    abortSignal,
+                );
+            });
+
+            const results = await Promise.allSettled(extractionPromises);
+
+            // Collect extracted data
+            for (let i = 0; i < results.length; i++) {
+                const r = results[i];
+                const sq = batch[i];
+                if (r.status === 'fulfilled' && r.value.extractedData) {
+                    const emoji = r.value.status === 'success' ? '✅' : '⚠️';
+                    progress(`  ${emoji} [${sq.platform}] ${r.value.status} — extracted data`);
+                    allExtractedData.push(
+                        `--- Source: ${sq.platform} (${sq.query}) ---\n${r.value.extractedData}`
+                    );
+                } else {
+                    progress(`  ❌ [${sq.platform}] Failed`);
+                }
+            }
+
+            // Clean up batch tabs
+            for (const tabId of tabIds) {
+                await tabManager.detach(tabId);
+            }
+        }
+
+        // Check if we got any data
+        if (allExtractedData.length === 0) {
+            conv.messages.push({
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: '❌ Could not extract any lead data from the searches. Try being more specific about the industry and location.',
+                timestamp: Date.now(),
+            });
+            conv.updatedAt = Date.now();
+            await saveConversation(conv);
+            broadcastEvent({ type: 'agent_done', conversationId: conv.id });
+            return;
+        }
+
+        // Check abort
+        if (agentAbortFlag) {
+            progress('⏹ Lead generation stopped by user.');
+            conv.messages.push({
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: '⏹ Lead generation stopped by user.',
+                timestamp: Date.now(),
+            });
+            conv.updatedAt = Date.now();
+            await saveConversation(conv);
+            await tabManager.detachAll();
+            broadcastEvent({ type: 'agent_done', conversationId: conv.id });
+            return;
+        }
+
+        // Combine all extracted data
+        const combinedLeads = allExtractedData.join('\n\n');
+        progress(`📊 Extracted leads from ${allExtractedData.length} sources. Processing...`);
+
+        // Use LLM to consolidate and deduplicate the leads
+        const consolidationPrompt = `You are a data consolidation assistant. Given raw lead data extracted from multiple search results, consolidate them into a clean, deduplicated list.\n\nFor EACH unique lead, output:\n- Business Name: [name]\n- Platform: [instagram/facebook/etc.]\n- Profile URL: [url]\n- Category: [what they sell/do]\n- Location: [city, country]\n- Contact: [phone/email/WhatsApp or N/A]\n- Has Website: [yes/no]\n- Website: [url or none]\n- Notes: [brief note]\n\nRemove duplicates. Remove non-business results. Format each lead as a separate block separated by a blank line.`;
+
+        const consolidateResponse = await callLLM(settings, consolidationPrompt, [
+            {
+                id: crypto.randomUUID(),
+                role: 'user',
+                content: `Consolidate these leads:\n\n${combinedLeads}`,
+                timestamp: Date.now(),
+            },
+        ], []);
+
+        const consolidatedLeads = consolidateResponse.content || combinedLeads;
+
+        conv.messages.push({
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: `📋 **Leads gathered:**\n\n${consolidatedLeads}`,
+            timestamp: Date.now(),
+        });
+        conv.updatedAt = Date.now();
+        await saveConversation(conv);
+
+        // ── Phase 3: Enter into Google Sheets (if requested) ──
+        const promptLower = message.prompt.toLowerCase();
+        const wantsSheetEntry = /sheet|spreadsheet|excel|google sheets/i.test(promptLower);
+
+        if (wantsSheetEntry && !agentAbortFlag) {
+            progress('📝 Phase 2: Entering leads into Google Sheets...');
+
+            conv.messages.push({
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: '📝 Now entering leads into Google Sheets...',
+                timestamp: Date.now(),
+            });
+            await saveConversation(conv);
+
+            // Build the sheet entry prompt and run agent on the sheets tab
+            const sheetPrompt = buildSheetEntryPrompt(consolidatedLeads);
+
+            // Find an existing Google Sheets tab, or ask user
+            const tabs = await chrome.tabs.query({});
+            let sheetsTabId = tabs.find(t =>
+                t.url?.includes('docs.google.com/spreadsheets')
+            )?.id;
+
+            if (!sheetsTabId) {
+                progress('⚠️ No Google Sheet tab found. Opening a new one...');
+                sheetsTabId = await openBrowser('https://sheets.google.com');
+                await sleep(3000);
+            }
+
+            // Run the agent with sheet entry instructions
+            // Re-use the main agent loop but with a sheet-specific prompt
+            const sheetConvMessages: Message[] = [
+                {
+                    id: crypto.randomUUID(),
+                    role: 'user',
+                    content: sheetPrompt,
+                    timestamp: Date.now(),
+                },
+            ];
+
+            let lastSnapshot: Awaited<ReturnType<typeof takeSnapshot>> | null = null;
+            let stepCount = 0;
+            const SHEET_MAX_STEPS = 40;
+
+            while (stepCount < SHEET_MAX_STEPS && !agentAbortFlag) {
+                stepCount++;
+
+                const response = await callLLM(
+                    settings,
+                    SYSTEM_PROMPT,
+                    pruneHistory(sheetConvMessages, 8),
+                    BROWSER_TOOLS,
+                );
+
+                if (response.toolCalls.length === 0) {
+                    progress('✅ Sheet entry complete.');
+                    break;
+                }
+
+                const assistantMsg: Message = {
+                    id: crypto.randomUUID(),
+                    role: 'assistant',
+                    content: response.content || '',
+                    toolCalls: response.toolCalls,
+                    timestamp: Date.now(),
+                };
+                sheetConvMessages.push(assistantMsg);
+
+                for (const toolCall of response.toolCalls) {
+                    if (agentAbortFlag) break;
+                    const args = toolCall.arguments as Record<string, unknown>;
+                    let toolResult = '';
+
+                    try {
+                        switch (toolCall.name) {
+                            case 'task_complete': {
+                                progress(`✅ Sheet entry done: ${args.summary || 'Leads entered'}`);
+                                stepCount = SHEET_MAX_STEPS; // Break outer loop
+                                break;
+                            }
+                            case 'take_snapshot': {
+                                lastSnapshot = await takeSnapshot(sheetsTabId);
+                                toolResult = formatSnapshot(lastSnapshot);
+                                progress(`📸 Sheet snapshot (${lastSnapshot.elements.length} elements)`);
+                                break;
+                            }
+                            case 'click': {
+                                if (!lastSnapshot) { toolResult = 'Error: No snapshot.'; break; }
+                                toolResult = await clickElement(args.uid as number, lastSnapshot, sheetsTabId);
+                                await sleep(500);
+                                try {
+                                    lastSnapshot = await takeSnapshot(sheetsTabId);
+                                    toolResult += '\n\n--- Page after click ---\n' + formatSnapshot(lastSnapshot);
+                                } catch { lastSnapshot = null; }
+                                break;
+                            }
+                            case 'type_text': {
+                                if (!lastSnapshot) { toolResult = 'Error: No snapshot.'; break; }
+                                toolResult = await typeText(args.text as string, args.uid as number, lastSnapshot, sheetsTabId);
+                                await sleep(300);
+                                break;
+                            }
+                            case 'press_key': {
+                                toolResult = await pressKey(args.key as string, sheetsTabId);
+                                await sleep(300);
+                                break;
+                            }
+                            case 'navigate': {
+                                await navigateTo(args.url as string, sheetsTabId);
+                                toolResult = `Navigated to ${args.url}.`;
+                                lastSnapshot = null;
+                                break;
+                            }
+                            case 'scroll': {
+                                toolResult = await scrollPage(args.direction as 'up' | 'down', (args.amount as number) || 500, sheetsTabId);
+                                break;
+                            }
+                            case 'set_value': {
+                                if (!lastSnapshot) { toolResult = 'Error: No snapshot.'; break; }
+                                toolResult = await setValue(args.uid as number, args.value as string, lastSnapshot, sheetsTabId);
+                                await sleep(300);
+                                break;
+                            }
+                            case 'select_option': {
+                                if (!lastSnapshot) { toolResult = 'Error: No snapshot.'; break; }
+                                toolResult = await selectOption(args.uid as number, args.value as string, lastSnapshot, sheetsTabId);
+                                break;
+                            }
+                            case 'wait_for_page_update': {
+                                toolResult = await waitForNetworkIdle(sheetsTabId, 3000);
+                                break;
+                            }
+                            default:
+                                toolResult = `Unknown tool: ${toolCall.name}`;
+                        }
+                    } catch (err) {
+                        toolResult = `Tool error: ${String(err)}`;
+                    }
+
+                    sheetConvMessages.push({
+                        id: crypto.randomUUID(),
+                        role: 'tool',
+                        content: toolResult,
+                        toolCallId: toolCall.id,
+                        toolName: toolCall.name,
+                        timestamp: Date.now(),
+                    });
+                }
+            }
+        }
+
+        // Final message
+        const finalContent = wantsSheetEntry
+            ? '✅ Lead generation complete! Leads have been gathered and entered into Google Sheets.'
+            : '✅ Lead generation complete! Here are the gathered leads above.';
+
+        conv.messages.push({
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: finalContent,
+            timestamp: Date.now(),
+        });
+        conv.updatedAt = Date.now();
+        await saveConversation(conv);
+        progress(finalContent);
+        broadcastEvent({ type: 'agent_done', conversationId: conv.id });
+
+    } catch (err) {
+        progress(`❌ Lead generation error: ${String(err).slice(0, 100)}`);
+        conv.messages.push({
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: `❌ Lead generation failed: ${String(err)}`,
+            timestamp: Date.now(),
+        });
+        conv.updatedAt = Date.now();
+        await saveConversation(conv);
+        broadcastEvent({ type: 'agent_error', error: String(err), conversationId: conv.id });
+    } finally {
         await tabManager.detachAll();
     }
 }

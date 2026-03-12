@@ -127,6 +127,64 @@ ELEMENT NOT FOUND:
 - Some elements may be below the fold and need scrolling to become visible.
 - For filters that are collapsed, look for an element with [collapsed] and click it to expand.
 
+LEAD GENERATION / PROSPECTING — FOLLOW EXACTLY:
+When asked to find leads, businesses, stores, or contacts (especially on social media):
+1. ALWAYS use Google advanced search operators (Google Dorks). NEVER just type a vague query.
+2. Key operators you MUST use:
+   - site:instagram.com — search only Instagram
+   - site:facebook.com — search only Facebook
+   - site:linkedin.com — search only LinkedIn
+   - "quoted phrases" — exact match
+   - OR — alternatives (e.g. "shop" OR "store" OR "boutique")
+   - - (minus) — exclude (e.g. -site:amazon.com)
+3. Example queries for "find e-commerce stores in Sydney with no websites":
+   → site:instagram.com "sydney" "shop" OR "store" "DM to order" OR "link in bio"
+   → site:instagram.com "sydney" "handmade" OR "boutique" "order"
+   → site:facebook.com "sydney" "shop" OR "store" "message us"
+4. For each search result page:
+   - Read the PAGE TEXT to find business names, profile URLs, and details.
+   - Scroll down and read MORE results. Don't stop after the first few.
+   - Click into profiles/pages to get more details (bio, contact, website field).
+   - Extract: business name, profile URL, category, location, contact info, has website (yes/no).
+5. Collect ALL leads before moving on. Store them mentally as a list.
+6. If the user wants leads that have NO website, look for signs like:
+   - "DM to order", "Message us", "WhatsApp only", "Link in bio" pointing to linktr.ee
+   - No website URL in their profile/bio
+   - "Instagram shop" or "Facebook shop" only
+7. NEVER stop after finding just 1-2 leads. Gather at least 5-10 from each search query.
+8. Run MULTIPLE search queries (at least 3-4) to get a comprehensive list.
+
+GOOGLE SHEETS DATA ENTRY — FOLLOW EXACTLY:
+When you need to enter data into Google Sheets:
+1. The sheet should already be open. take_snapshot() to see it.
+2. Find the current state: Are there headers? Where is the first empty row?
+3. If the sheet is EMPTY:
+   - Click cell A1 and type the first header (e.g. "Business Name")
+   - Press Tab to move to B1, type next header (e.g. "Platform")
+   - Continue with Tab for each header column
+   - Press Enter to go to row 2 (first data row)
+4. If the sheet HAS headers:
+   - Find the first empty row by looking at the row numbers in the snapshot
+   - Click the first cell in that row (column A)
+5. To enter one row of data:
+   - Type the value → press Tab → type next value → press Tab → ... → press Enter (moves to next row)
+6. CRITICAL: After pressing Enter at the end of a row, the cursor moves to column A of the next row.
+7. Repeat for EVERY lead. Do NOT stop after entering just one or two.
+8. After entering all data, take_snapshot() to verify the entries look correct.
+9. NEVER type into a cell without clicking on it first if you're not sure where the cursor is.
+10. If the sheet has multiple tabs, look for tab names at the bottom and click the correct one.
+
+MULTI-PHASE TASKS — IMPORTANT:
+When a task has multiple phases (e.g. "find leads AND enter them into a sheet"):
+1. PHASE 1 — GATHER: Complete ALL the gathering/research first.
+   - Run ALL search queries, visit ALL result pages, extract ALL data.
+   - Keep a running list of everything you've gathered.
+2. PHASE 2 — ACT: Only after gathering is complete, move to the action.
+   - Navigate to the target (e.g. Google Sheets) and enter ALL gathered data.
+   - Do NOT switch back and forth between gathering and entering.
+3. Report your gathered data clearly before starting Phase 2 so the user can see progress.
+4. NEVER call task_complete until BOTH phases are done.
+
 TASK COMPLETION:
 - "search for X" → DONE ONLY when URL contains "/results", "/search", or "/s?k=" AND results are visible.
 - "play a video" → DONE when a video page is open (URL contains "/watch").

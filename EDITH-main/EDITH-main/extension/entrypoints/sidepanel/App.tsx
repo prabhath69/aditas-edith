@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Message, Conversation, StoredSettings } from '../../lib/storage';
 import { getSettings, saveSettings, getConversations } from '../../lib/storage';
+import { useSpeechToText } from './useSpeechToText';
 
 type View = 'chat' | 'settings' | 'history';
 type ChatMode = 'chat' | 'agent' | 'research';
@@ -20,7 +21,9 @@ export default function App() {
     const [isRunning, setIsRunning] = useState(false);
     const [progressLog, setProgressLog] = useState<string[]>([]);
     const [statusText, setStatusText] = useState('');
+    const [speechError, setSpeechError] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const pendingSpeechRef = useRef<string | null>(null);
 
     // Load initial data
     useEffect(() => {
@@ -70,6 +73,24 @@ export default function App() {
     }, [messages, progressLog]);
 
     const activeConv = conversations.find((c) => c.id === activeConvId);
+
+    // ─── Speech-to-Text ─────────────────────────────────────────────────
+    const { isListening, interimTranscript, startListening, stopListening, error: sttError } = useSpeechToText({
+        onResult: (transcript) => {
+            // Store the transcript; we'll send it via an effect
+            setInput(transcript);
+            pendingSpeechRef.current = transcript;
+        },
+    });
+
+    // Propagate STT errors briefly
+    useEffect(() => {
+        if (sttError) {
+            setSpeechError(sttError);
+            const timer = setTimeout(() => setSpeechError(null), 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [sttError]);
 
     const startNewConversation = () => {
         setActiveConvId(null);
@@ -151,6 +172,15 @@ export default function App() {
             setMessages((prev) => [...prev, errMsg]);
         }
     }, [input, isRunning, mode, activeConvId]);
+
+    // Auto-send after speech result fills the input
+    useEffect(() => {
+        if (pendingSpeechRef.current && input === pendingSpeechRef.current && !isRunning) {
+            pendingSpeechRef.current = null;
+            // Delay slightly so React state is settled
+            setTimeout(() => sendMessage(), 50);
+        }
+    }, [input, isRunning, sendMessage]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -384,6 +414,7 @@ export default function App() {
                                     {m === 'agent' ? '🤖 Agent' : m === 'research' ? '🔬 Research' : '💬 Chat'}
                                 </button>
                             ))}
+
                             {mode === 'agent' && (
                                 <span style={{ fontSize: 11, color: 'var(--warning)' }}>Controls your browser</span>
                             )}
@@ -392,20 +423,64 @@ export default function App() {
                             )}
                         </div>
 
+                        {/* Interim transcript preview */}
+                        {isListening && interimTranscript && (
+                            <div style={{
+                                fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic',
+                                padding: '4px 8px', marginBottom: 4,
+                                background: 'var(--accent-dim)', borderRadius: 8,
+                                animation: 'fadeIn 0.2s ease-out',
+                            }}>
+                                🎙️ {interimTranscript}
+                            </div>
+                        )}
+
+                        {/* Speech error feedback */}
+                        {speechError && (
+                            <div style={{
+                                fontSize: 11, color: 'var(--error)', padding: '4px 8px',
+                                marginBottom: 4, background: 'rgba(239,83,80,0.1)', borderRadius: 8,
+                            }}>
+                                ⚠ {speechError}
+                            </div>
+                        )}
+
                         <div style={{ display: 'flex', gap: 8, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '8px 10px', alignItems: 'flex-end' }}>
                             <textarea
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder={mode === 'agent' ? 'Give EDITH a browser task...' : mode === 'research' ? 'What do you want to research across sites?' : 'Ask EDITH anything...'}
+                                placeholder={isListening ? 'Listening...' : mode === 'agent' ? 'Give EDITH a browser task...' : mode === 'research' ? 'What do you want to research across sites?' : 'Ask EDITH anything...'}
                                 rows={1}
-                                disabled={isRunning}
+                                disabled={isRunning || isListening}
                                 style={{
                                     flex: 1, resize: 'none', background: 'transparent', border: 'none', outline: 'none',
                                     color: 'var(--text-primary)', fontSize: 13, fontFamily: 'inherit',
                                     maxHeight: 100, overflowY: 'auto',
                                 }}
                             />
+
+                            {/* ── Mic Button ── */}
+                            <button
+                                onClick={isListening ? stopListening : startListening}
+                                disabled={isRunning}
+                                title={isListening ? 'Stop listening' : 'Voice input'}
+                                className={isListening ? 'mic-pulse' : ''}
+                                style={{
+                                    width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                                    cursor: isRunning ? 'not-allowed' : 'pointer',
+                                    background: isListening ? '#ef4444' : 'transparent',
+                                    border: isListening ? 'none' : '1px solid var(--border)',
+                                    color: isListening ? '#fff' : 'var(--text-secondary)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 15,
+                                    opacity: isRunning ? 0.4 : 1,
+                                    transition: 'all 0.2s ease',
+                                }}
+                            >
+                                🎤
+                            </button>
+
                             {isRunning ? (
                                 <button
                                     onClick={stopAgent}
@@ -436,7 +511,7 @@ export default function App() {
                             )}
                         </div>
                         <p style={{ fontSize: 10, marginTop: 6, textAlign: 'center', color: 'var(--text-secondary)', opacity: 0.6 }}>
-                            Enter to send · Shift+Enter for new line
+                            Enter to send · Shift+Enter for new line · 🎤 Voice input
                         </p>
                     </div>
                 </>

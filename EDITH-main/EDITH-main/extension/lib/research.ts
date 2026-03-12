@@ -60,7 +60,7 @@ export interface ResearchProgress {
 
 const MAX_RESEARCH_TABS = 5;
 const SUB_TASK_TIMEOUT_MS = 90_000; // 90 seconds per sub-task
-const MAX_SUB_TASK_STEPS = 20;
+const MAX_SUB_TASK_STEPS = 30;
 
 // ─── Task Decomposition ─────────────────────────────────────────────────────
 
